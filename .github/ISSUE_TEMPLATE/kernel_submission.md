@@ -1,10 +1,3 @@
----
-name: GEMM Kernel Submission
-about: Submit a high-performance GEMM kernel to VibeGEMM leaderboard
-title: "[SUBMISSION] Kernel Name"
-labels: submission
----
-
 ## Kernel Name
 e.g., vibegemm_h100_wgmma
 
