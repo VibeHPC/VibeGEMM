@@ -1,3 +1,10 @@
+---
+name: GEMM Kernel Submission
+about: Submit a high-performance GEMM kernel
+title: "[SUBMISSION] Kernel Name"
+labels: submission
+---
+
 ## Kernel Name
 e.g., vibegemm_h100_wgmma
 
@@ -28,3 +35,11 @@ https://github.com/...
 
 ```bash
 nvcc -O3 ...
+
+## Run Command
+
+```bash
+./run.sh ...
+
+## Notes
+(optional)
