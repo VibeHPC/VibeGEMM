@@ -28,7 +28,6 @@ e.g., 1024×1024×1024
 
 ## Source Code
 Submission_Template: https://github.com/VibeHPC/VibeGEMM/blob/main/.github/ISSUE_TEMPLATE/GEMM_M1024_N1024_K1024_Submission_Template.cu
-
 Put the link where the submitting code is stored: https://github.com/...
 
 ## Compile Command
