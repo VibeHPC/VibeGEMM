@@ -7,9 +7,14 @@
  *     2) performance: average latency and TFLOPS
  *
  * Matrix layout:
- *   All matrices use row-major layout.
- *   A: M x K, B: K x N, C: M x N
+ *   A uses row-major layout:    A[M,K], index A[row*K + k]
+ *   B uses column-major layout: B[K,N], index B[k + col*K]
+ *   C uses column-major layout: C[M,N], index C[row + col*M]
  *   C = A * B
+ *
+ * Note:
+ *   This mixed layout is chosen to match the cuBLAS call in run_cublas_gemm():
+ *   cublasGemmEx(handle, CUBLAS_OP_T, CUBLAS_OP_N, M, N, K, ...).
  *
  * Data type:
  *   FP16 input/output, FP32 accumulation in cuBLAS and in the example custom kernel.
@@ -183,28 +188,30 @@ static void run_cublas_gemm(cublasHandle_t handle,
     const float alpha = 1.0f;
     const float beta = 0.0f;
 
-    // cuBLAS assumes column-major matrices. Our data is row-major.
-    // Row-major C[M,N] = A[M,K] * B[K,N]
-    // is equivalent to column-major C^T[N,M] = B^T[N,K] * A^T[K,M].
+    // cuBLAS assumes column-major matrices. In this template:
+    //   A is stored as row-major A[M,K]. The same memory can be viewed by cuBLAS
+    //   as a column-major matrix with shape K x M, so CUBLAS_OP_T gives A[M,K].
+    //   B is stored as column-major B[K,N].
+    //   C is stored as column-major C[M,N].
     CUBLAS_CHECK(cublasGemmEx(handle,
+                              CUBLAS_OP_T,
                               CUBLAS_OP_N,
-                              CUBLAS_OP_N,
-                              N,                 // rows of C^T
-                              M,                 // columns of C^T
+                              M,                 // rows of C
+                              N,                 // columns of C
                               K,                 // reduction dimension
                               &alpha,
-                              d_B,
-                              CUDA_R_16F,
-                              N,                 // leading dimension of B^T
                               d_A,
                               CUDA_R_16F,
-                              K,                 // leading dimension of A^T
+                              K,                 // leading dimension of A viewed as K x M
+                              d_B,
+                              CUDA_R_16F,
+                              K,                 // leading dimension of B
                               &beta,
                               d_C,
                               CUDA_R_16F,
-                              N,                 // leading dimension of C^T
+                              M,                 // leading dimension of C
                               CUBLAS_COMPUTE_32F,
-                              CUBLAS_GEMM_DEFAULT_TENSOR_OP));
+                              CUBLAS_GEMM_DEFAULT));
 }
 
 // ========================================================================================
@@ -239,7 +246,8 @@ __global__ void simple_tiled_gemm_kernel(const half* __restrict__ A,
 
         As[ty][tx] = (row < M && a_col < K) ? A[static_cast<size_t>(row) * K + a_col]
                                             : __float2half(0.0f);
-        Bs[ty][tx] = (b_row < K && col < N) ? B[static_cast<size_t>(b_row) * N + col]
+        // B is column-major: B[k, col] is stored at B[k + col*K].
+        Bs[ty][tx] = (b_row < K && col < N) ? B[static_cast<size_t>(b_row) + static_cast<size_t>(col) * K]
                                             : __float2half(0.0f);
         __syncthreads();
 
@@ -251,7 +259,8 @@ __global__ void simple_tiled_gemm_kernel(const half* __restrict__ A,
     }
 
     if (row < M && col < N) {
-        C[static_cast<size_t>(row) * N + col] = __float2half(acc);
+        // C is column-major: C[row, col] is stored at C[row + col*M].
+        C[static_cast<size_t>(row) + static_cast<size_t>(col) * M] = __float2half(acc);
     }
 }
 
@@ -346,7 +355,8 @@ int main(int argc, char** argv) {
     CUDA_CHECK(cudaGetDeviceProperties(&prop, 0));
     std::printf("Device: %s\n", prop.name);
     std::printf("Problem: M=%d, N=%d, K=%d\n", M, N, K);
-    std::printf("Layout : row-major, C[%d,%d] = A[%d,%d] * B[%d,%d]\n", M, N, M, K, K, N);
+    std::printf("Layout : A row-major, B column-major, C column-major; C[%d,%d] = A[%d,%d] * B[%d,%d]\n",
+                M, N, M, K, K, N);
     std::printf("Iters  : warmup=%d, benchmark=%d\n\n", warmup_iters, benchmark_iters);
 
     const size_t elems_A = static_cast<size_t>(M) * K;
@@ -357,6 +367,8 @@ int main(int argc, char** argv) {
     std::vector<half> h_B(elems_B);
     fill_random_fp16(h_A, 42);
     fill_random_fp16(h_B, 77);
+    // h_A is interpreted as row-major A[M,K].
+    // h_B is interpreted as column-major B[K,N].
 
     half* d_A = nullptr;
     half* d_B = nullptr;
