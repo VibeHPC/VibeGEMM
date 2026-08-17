@@ -1,0 +1,135 @@
+{
+  "schema_version": "1.0.0",
+  "analysis_id": "variant-analysis:a717ecbaf4c04c26",
+  "variant_id": "dual_gemm_swiglu",
+  "name": "Dual GEMM + SwiGLU",
+  "supported_architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "problem": {
+    "dimensions": [
+      "M",
+      "N",
+      "K"
+    ],
+    "representative_shapes": [
+      [
+        128,
+        28672,
+        8192
+      ],
+      [
+        128,
+        22016,
+        8192
+      ]
+    ]
+  },
+  "reference": {
+    "kind": "symbolic",
+    "description": "Y = SiLU(X @ Wg) * (X @ Wu)"
+  },
+  "backbone_operations": [
+    "dual_gemm"
+  ],
+  "variant_operations": [
+    {
+      "id": "silu",
+      "kind": "silu",
+      "inputs": [
+        "gate"
+      ],
+      "outputs": [
+        "activated"
+      ],
+      "expression": "activated = SiLU(gate)",
+      "topological_index": 1
+    },
+    {
+      "id": "multiply",
+      "kind": "multiply",
+      "inputs": [
+        "activated",
+        "up"
+      ],
+      "outputs": [
+        "Y"
+      ],
+      "expression": "Y = activated * up",
+      "topological_index": 2
+    }
+  ],
+  "data_dependencies": [
+    {
+      "value": "Y",
+      "producer": "multiply",
+      "consumers": []
+    },
+    {
+      "value": "activated",
+      "producer": "silu",
+      "consumers": [
+        "multiply"
+      ]
+    },
+    {
+      "value": "gate",
+      "producer": "dual_gemm",
+      "consumers": [
+        "silu"
+      ]
+    },
+    {
+      "value": "up",
+      "producer": "dual_gemm",
+      "consumers": [
+        "multiply"
+      ]
+    }
+  ],
+  "patch_groups": [
+    {
+      "group_id": "patch-group:dfca6c7e31afec52",
+      "operation_ids": [
+        "silu",
+        "multiply"
+      ],
+      "computation": "activated = SiLU(gate) -> Y = activated * up",
+      "inputs": [
+        "gate",
+        "up"
+      ],
+      "outputs": [
+        "Y"
+      ],
+      "tensor_requirements": [
+        {
+          "name": "gate",
+          "dtype": "fp32",
+          "layout": "tile"
+        },
+        {
+          "name": "up",
+          "dtype": "fp32",
+          "layout": "tile"
+        },
+        {
+          "name": "Y",
+          "dtype": "fp16|bf16",
+          "layout": "row_major"
+        }
+      ],
+      "availability_stage": "epilogue",
+      "stage_rationale": "its operand becomes available after GEMM accumulation",
+      "requires_reduction": false,
+      "localization_status": "pending"
+    }
+  ],
+  "outputs": [
+    "Y"
+  ],
+  "status": "analyzed",
+  "next_stage": "patch_localization"
+}

@@ -1,0 +1,112 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.collective.cp-async-multistage-mainloop",
+  "level": "collective",
+  "name": "Ampere cp.async multistage GEMM mainloop",
+  "summary": "Pipeline global-to-shared copies through cp.async while warp-level MMA consumes earlier shared-memory stages, using commit and wait groups to overlap memory movement with computation.",
+  "primitives": [
+    "cp.async",
+    "cp.async.commit_group",
+    "cp.async.wait_group",
+    "MmaMultistage"
+  ],
+  "strategy": {
+    "intent": "Hide global-memory latency behind Ampere Tensor Core computation.",
+    "mechanism": "Issue predicated or zero-filled asynchronous copies for A and B, commit groups at stage boundaries, wait before reuse, and rotate through shared-memory stages.",
+    "expected_benefit": "Overlaps data movement and MMA without dedicating separate producer warps.",
+    "tradeoffs": [
+      "Requires at least two shared-memory stages.",
+      "Copy access width, alignment, predication, and wait distance must be coordinated correctly."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "stages",
+      "kind": "integer",
+      "description": "Number of circular shared-memory buffers."
+    },
+    {
+      "name": "cache_op_a",
+      "kind": "choice",
+      "description": "cp.async cache policy for A.",
+      "values": [
+        "Always",
+        "Global"
+      ]
+    },
+    {
+      "name": "cache_op_b",
+      "kind": "choice",
+      "description": "cp.async cache policy for B.",
+      "values": [
+        "Always",
+        "Global"
+      ]
+    },
+    {
+      "name": "shared_memory_clear",
+      "kind": "choice",
+      "description": "Out-of-bounds handling strategy.",
+      "values": [
+        "none",
+        "zfill",
+        "predicate",
+        "clear_last_stage"
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "type": "architecture",
+      "expression": "arch >= sm80",
+      "rationale": "MmaMultistage identifies Sm80 as the minimum architecture for cp.async."
+    },
+    {
+      "type": "resource",
+      "expression": "stages >= 2",
+      "rationale": "The collective specialization requires a multistage pipeline."
+    },
+    {
+      "type": "layout",
+      "expression": "global_copy_access_is_aligned",
+      "rationale": "cp.async access sizes and cache modes impose alignment requirements."
+    },
+    {
+      "type": "semantic",
+      "expression": "wait_group_precedes_shared_stage_reuse",
+      "rationale": "Consumers must not read incomplete copies or overwrite in-flight stages."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/threadblock/mma_multistage.h",
+        "line_start": 81,
+        "line_end": 180,
+        "symbol": "MmaMultistage",
+        "evidence": "The class exposes stage count, cache operations, async-copy iteration groups, and Sm80 as the minimum architecture."
+      },
+      {
+        "path": "cutlass-main/include/cutlass/arch/memory_sm80.h",
+        "line_start": 439,
+        "line_end": 464,
+        "symbol": "cp_async_fence",
+        "evidence": "The architecture helpers emit cp.async commit-group and wait-group synchronization instructions."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "cp-async",
+    "pipeline",
+    "multistage",
+    "tensor-core"
+  ],
+  "status": "curated"
+}

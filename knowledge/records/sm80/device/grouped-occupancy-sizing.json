@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.device.grouped-occupancy-sizing",
+  "level": "device",
+  "name": "Occupancy-sized grouped grid",
+  "summary": "Choose enough persistent grouped-GEMM blocks to cover available SM occupancy without launching unnecessary blocks beyond total work.",
+  "primitives": [
+    "static int sufficient"
+  ],
+  "strategy": {
+    "intent": "Turn a composed GEMM kernel into a safe, reusable host-callable operation.",
+    "mechanism": "Choose enough persistent grouped-GEMM blocks to cover available SM occupancy without launching unnecessary blocks beyond total work.",
+    "expected_benefit": "Provides uniform validation, resource management, launch, and workload-mode integration.",
+    "tradeoffs": [
+      "Device wrappers add host-side policy and workspace requirements that must remain consistent with the selected kernel."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "problem_sizes",
+      "kind": "choice",
+      "description": "Device integration parameter: problem_sizes."
+    },
+    {
+      "name": "problem_count",
+      "kind": "integer",
+      "description": "Device integration parameter: problem_count."
+    },
+    {
+      "name": "available_sm_count",
+      "kind": "integer",
+      "description": "Device integration parameter: available_sm_count."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "resource",
+      "expression": "maximum_active_blocks is positive",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/device/base_grouped.h",
+        "line_start": 288,
+        "line_end": 288,
+        "symbol": "static int sufficient",
+        "evidence": "The referenced CUTLASS device API implements this integration method."
+      }
+    ]
+  },
+  "tags": [
+    "device-api",
+    "grouped-gemm",
+    "occupancy",
+    "persistent"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

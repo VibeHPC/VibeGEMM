@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.collective.broadcast-epilogue",
+  "level": "collective",
+  "name": "SM80 broadcast epilogue",
+  "summary": "Fuse a row- or column-broadcast tensor and elementwise operation into output tile stores.",
+  "primitives": [
+    "class EpilogueWithBroadcast"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Fuse a row- or column-broadcast tensor and elementwise operation into output tile stores.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "broadcast",
+      "kind": "choice",
+      "description": "Collective configuration parameter: broadcast."
+    },
+    {
+      "name": "elementwise_op",
+      "kind": "choice",
+      "description": "Collective configuration parameter: elementwise_op."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "broadcast coordinates match output tile",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/threadblock/epilogue_with_broadcast.h",
+        "line_start": 186,
+        "line_end": 186,
+        "symbol": "class EpilogueWithBroadcast",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "epilogue",
+    "broadcast",
+    "fusion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

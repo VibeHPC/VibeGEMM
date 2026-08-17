@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.0.0",
+  "localization_set_id": "patch-localization:f9736a5d8fe3aeca",
+  "architecture": "sm90",
+  "variant_id": "quantized_gemm",
+  "source": {
+    "analysis_path": "variant_patch/variant_analysis/results/quantized_gemm.json",
+    "analysis_sha256": "edeef9bc9ca1acc98a5f34ef91b6457745d170fa1a848a6e92421f6c1967a2f4",
+    "refinement_path": "backbone_optimization/progressive_refinement/results/sm90.json",
+    "refinement_sha256": "d4bdd47d53884cde9084938c15f7f2f2dc7f64a97a425b756f7110e0c0f3200e",
+    "backbone_path": "backbone_optimization/progressive_refinement/artifacts/sm90-placeholder-refinement-v1/trajectory-42b2f00be027422e/step-0002-attempt-0.cu",
+    "backbone_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+    "backbone_is_placeholder": true
+  },
+  "backbone_invariants": [
+    "preserve GEMM tensor-core instruction family",
+    "preserve tile shapes and thread/warp mapping",
+    "preserve mainloop pipeline and synchronization unless required by the patch",
+    "preserve existing shared-memory and register lifetimes",
+    "modify only the selected localized region"
+  ],
+  "localizations": [
+    {
+      "localization_id": "localization:91886b5fbe6c530d",
+      "group_id": "patch-group:0ad4ff2fa3bcc7d1",
+      "semantic_stage": "epilogue",
+      "backbone_region": "epilogue",
+      "candidate_insertion_points": [
+        "after_final_accumulator_before_output_conversion",
+        "before_global_store"
+      ],
+      "required_live_values": [
+        "acc"
+      ],
+      "produced_values": [
+        "Y"
+      ],
+      "tensor_requirements": [
+        {
+          "name": "acc",
+          "dtype": "fp32",
+          "layout": "tile"
+        },
+        {
+          "name": "Y",
+          "dtype": "fp16|bf16",
+          "layout": "row_major"
+        }
+      ],
+      "computation": "Y = cast(acc)",
+      "requires_reduction": false,
+      "source_anchor_matches": [],
+      "source_resolution": "symbolic_only",
+      "status": "symbolic_localized"
+    },
+    {
+      "localization_id": "localization:832791c21e5c2d98",
+      "group_id": "patch-group:ff04e2a561f72ab1",
+      "semantic_stage": "input_data_movement",
+      "backbone_region": "mainloop_input_movement",
+      "candidate_insertion_points": [
+        "after_tma_load_before_wgmma",
+        "after_shared_memory_load_before_wgmma"
+      ],
+      "required_live_values": [
+        "Aq",
+        "sa"
+      ],
+      "produced_values": [
+        "A"
+      ],
+      "tensor_requirements": [
+        {
+          "name": "Aq",
+          "dtype": "int4|fp8",
+          "layout": "packed_row"
+        },
+        {
+          "name": "sa",
+          "dtype": "fp16|fp32",
+          "layout": "scale"
+        },
+        {
+          "name": "A",
+          "dtype": "fp16|bf16",
+          "layout": "row_major"
+        }
+      ],
+      "computation": "A = dequantize(Aq, sa)",
+      "requires_reduction": false,
+      "source_anchor_matches": [],
+      "source_resolution": "symbolic_only",
+      "status": "symbolic_localized"
+    },
+    {
+      "localization_id": "localization:c9f1ddb476522177",
+      "group_id": "patch-group:48471c864551f61b",
+      "semantic_stage": "input_data_movement",
+      "backbone_region": "mainloop_input_movement",
+      "candidate_insertion_points": [
+        "after_tma_load_before_wgmma",
+        "after_shared_memory_load_before_wgmma"
+      ],
+      "required_live_values": [
+        "Bq",
+        "sb"
+      ],
+      "produced_values": [
+        "B"
+      ],
+      "tensor_requirements": [
+        {
+          "name": "Bq",
+          "dtype": "int4|fp8",
+          "layout": "packed_column"
+        },
+        {
+          "name": "sb",
+          "dtype": "fp16|fp32",
+          "layout": "scale"
+        },
+        {
+          "name": "B",
+          "dtype": "fp16|bf16",
+          "layout": "column_major"
+        }
+      ],
+      "computation": "B = dequantize(Bq, sb)",
+      "requires_reduction": false,
+      "source_anchor_matches": [],
+      "source_resolution": "symbolic_only",
+      "status": "symbolic_localized"
+    }
+  ],
+  "status": "symbolic_localized",
+  "next_stage": "patch_integration"
+}

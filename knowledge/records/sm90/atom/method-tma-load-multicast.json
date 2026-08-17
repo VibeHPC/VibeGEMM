@@ -1,0 +1,130 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.atom.method.tma-load-multicast",
+  "level": "atom",
+  "name": "Parameterized Hopper tma load multicast method",
+  "summary": "Use Hopper TMA load wrappers with multicast, selecting a supported tensor rank.",
+  "primitives": [
+    "TMA"
+  ],
+  "strategy": {
+    "intent": "Map GEMM arithmetic to architecture-native Tensor Core instructions.",
+    "mechanism": "Issue an asynchronous Hopper TMA load using a CUtensorMap descriptor instead of per-thread global-memory address calculations.",
+    "expected_benefit": "Uses the GPU matrix-multiply datapath instead of scalar arithmetic.",
+    "tradeoffs": [
+      "Requires compatible fragment layouts, data types, alignment, and architecture support."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "tensor_rank",
+      "kind": "integer",
+      "description": "Supported tensor-map coordinate ranks.",
+      "values": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "cache_hint",
+      "kind": "integer",
+      "description": "Optional TMA cache hint."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "architecture",
+      "expression": "arch in {sm90, sm90a}",
+      "rationale": "TMA is a Hopper data-movement facility."
+    },
+    {
+      "type": "dependency",
+      "expression": "valid_CUtensorMap_descriptor",
+      "rationale": "TMA instructions consume a tensor-map descriptor."
+    },
+    {
+      "type": "layout",
+      "expression": "tensor_shape_stride_and_smem_layout_match_descriptor",
+      "rationale": "Descriptor coordinates and destination layout must agree."
+    },
+    {
+      "type": "dependency",
+      "expression": "cluster_mask_selects_valid_peer_ctas",
+      "rationale": "Multicast distributes a load to selected CTAs in a cluster."
+    },
+    {
+      "type": "semantic",
+      "expression": "mbarrier_tracks_expected_transaction_bytes",
+      "rationale": "Consumers wait for TMA load completion through an mbarrier."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cute/arch/copy_sm90_tma.hpp",
+        "line_start": 626,
+        "line_end": 626,
+        "symbol": "SM90_TMA_LOAD_MULTICAST_1D",
+        "evidence": "CUTLASS declares this rank/operation-specific TMA wrapper at the referenced line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/copy_sm90_tma.hpp",
+        "line_start": 655,
+        "line_end": 655,
+        "symbol": "SM90_TMA_LOAD_MULTICAST_2D",
+        "evidence": "CUTLASS declares this rank/operation-specific TMA wrapper at the referenced line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/copy_sm90_tma.hpp",
+        "line_start": 684,
+        "line_end": 684,
+        "symbol": "SM90_TMA_LOAD_MULTICAST_3D",
+        "evidence": "CUTLASS declares this rank/operation-specific TMA wrapper at the referenced line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/copy_sm90_tma.hpp",
+        "line_start": 713,
+        "line_end": 713,
+        "symbol": "SM90_TMA_LOAD_MULTICAST_4D",
+        "evidence": "CUTLASS declares this rank/operation-specific TMA wrapper at the referenced line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/copy_sm90_tma.hpp",
+        "line_start": 742,
+        "line_end": 742,
+        "symbol": "SM90_TMA_LOAD_MULTICAST_5D",
+        "evidence": "CUTLASS declares this rank/operation-specific TMA wrapper at the referenced line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/copy_sm90_tma.hpp",
+        "line_start": 771,
+        "line_end": 771,
+        "symbol": "SM90_TMA_LOAD_MULTICAST",
+        "evidence": "CUTLASS declares this rank/operation-specific TMA wrapper at the referenced line."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "tma",
+    "load",
+    "multicast",
+    "rank-1"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Automatically normalized from concrete CUTLASS wrapper candidates.",
+    "All concrete candidate IDs are retained in atom-method-membership.json.",
+    "Requires semantic review before promotion to curated."
+  ]
+}

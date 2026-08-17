@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.kernel.cooperative-schedule",
+  "level": "kernel",
+  "name": "SM90 cooperative consumer schedule",
+  "summary": "Use two consumer warpgroups cooperatively on the same output tile, increasing WGMMA participation and tile coverage.",
+  "primitives": [
+    "Consumer0"
+  ],
+  "strategy": {
+    "intent": "Compose validated GEMM collectives with a grid/work scheduler into a complete CUDA kernel.",
+    "mechanism": "Use two consumer warpgroups cooperatively on the same output tile, increasing WGMMA participation and tile coverage.",
+    "expected_benefit": "Improves device utilization, overlap, locality, or workload coverage while preserving collective implementations.",
+    "tradeoffs": [
+      "Kernel schedules constrain tile shapes, resources, synchronization, and applicable problem regimes."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "consumer_warpgroups",
+      "kind": "integer",
+      "description": "Kernel configuration parameter: consumer_warpgroups."
+    },
+    {
+      "name": "scheduler_pipeline_stages",
+      "kind": "integer",
+      "description": "Kernel configuration parameter: scheduler_pipeline_stages."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "tile_m >= 128",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    },
+    {
+      "type": "resource",
+      "expression": "tiled_mma_threads == 256",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/sm90_gemm_tma_warpspecialized_cooperative.hpp",
+        "line_start": 382,
+        "line_end": 382,
+        "symbol": "Consumer0",
+        "evidence": "The referenced CUTLASS kernel or scheduler implements this composition strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "cooperative",
+    "warp-specialized",
+    "two-consumer"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

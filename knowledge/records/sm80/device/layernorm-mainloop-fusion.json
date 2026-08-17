@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.device.layernorm-mainloop-fusion",
+  "level": "device",
+  "name": "GEMM with layer-normalization mainloop fusion",
+  "summary": "Expose a GEMM whose operand preparation fuses layer-normalization scale and bias.",
+  "primitives": [
+    "class GemmLayernormMainloopFusion"
+  ],
+  "strategy": {
+    "intent": "Turn a composed GEMM kernel into a safe, reusable host-callable operation.",
+    "mechanism": "Expose a GEMM whose operand preparation fuses layer-normalization scale and bias.",
+    "expected_benefit": "Provides uniform validation, resource management, launch, and workload-mode integration.",
+    "tradeoffs": [
+      "Device wrappers add host-side policy and workspace requirements that must remain consistent with the selected kernel."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "scale",
+      "kind": "choice",
+      "description": "Device integration parameter: scale."
+    },
+    {
+      "name": "bias",
+      "kind": "choice",
+      "description": "Device integration parameter: bias."
+    },
+    {
+      "name": "workspace",
+      "kind": "choice",
+      "description": "Device integration parameter: workspace."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "normalization vectors match the operand",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/device/gemm_layernorm_mainloop_fusion.h",
+        "line_start": 122,
+        "line_end": 122,
+        "symbol": "class GemmLayernormMainloopFusion",
+        "evidence": "The referenced CUTLASS device API implements this integration method."
+      }
+    ]
+  },
+  "tags": [
+    "device-api",
+    "layernorm",
+    "mainloop",
+    "fusion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

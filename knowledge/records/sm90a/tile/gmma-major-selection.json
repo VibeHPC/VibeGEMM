@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.tile.gmma-major-selection",
+  "level": "tile",
+  "name": "Select GMMA operand major modes from tensor layouts",
+  "summary": "Translate global operand layout tags into Hopper GMMA K-major or MN-major operand modes before selecting the tiled MMA.",
+  "primitives": [
+    "GmmaMajorA"
+  ],
+  "strategy": {
+    "intent": "Construct a legal and performance-relevant GEMM tile mapping for the target architecture.",
+    "mechanism": "Derive GMMA::Major values independently for A and B, including RS and SS-specific layout rules.",
+    "expected_benefit": "Exposes data reuse and parallel Tensor Core work while respecting layout and resource limits.",
+    "tradeoffs": [
+      "Tile choices change shared-memory use, register pressure, occupancy, and available grid parallelism."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "gmma_major_a",
+      "kind": "choice",
+      "description": "Tunable or derived tile property: gmma_major_a."
+    },
+    {
+      "name": "gmma_major_b",
+      "kind": "choice",
+      "description": "Tunable or derived tile property: gmma_major_b."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "layout",
+      "expression": "GMMA major mode is compatible with global and shared layouts",
+      "rationale": "The WGMMA descriptor interprets operand strides according to its major mode."
+    },
+    {
+      "type": "dependency",
+      "expression": "selected Atom method supports requested major modes",
+      "rationale": "Not every WGMMA wrapper supports every operand layout."
+    }
+  ],
+  "architectures": [
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/collective/builders/sm90_gmma_builder.inl",
+        "line_start": 249,
+        "line_end": 249,
+        "symbol": "GmmaMajorA",
+        "evidence": "The referenced CUTLASS builder/core expression implements this tile decision."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "wgmma",
+    "layout",
+    "major-mode"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted parameterized method; requires semantic review before promotion to curated."
+  ]
+}

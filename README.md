@@ -96,14 +96,18 @@ baseline. Raw latency and throughput measurements are retained with the figures.
 
 ### NVIDIA A100
 
-![A100 GEMM performance](benchmark_results/perf_a100.png)
+<p align="center">
+  <img src="benchmark_results/perf_a100.png" alt="NVIDIA A100 GEMM 8192x8192x8192 FP16 performance" width="100%">
+</p>
 
 The A100 series progresses from a naive 3.42 TFLOPS kernel to 220.55 TFLOPS.
 The best version reaches **97.3%** of the measured 226.66 TFLOPS cuBLAS baseline.
 
 ### NVIDIA H100
 
-![H100 GEMM performance](benchmark_results/perf_h100.png)
+<p align="center">
+  <img src="benchmark_results/perf_h100.png" alt="NVIDIA H100 GEMM 8192x8192x8192 FP16 performance" width="100%">
+</p>
 
 The H100 series progresses from 194.40 TFLOPS to a peak of 460.83 TFLOPS.
 The best version reaches **102.1%** of the measured 451.30 TFLOPS cuBLAS baseline.

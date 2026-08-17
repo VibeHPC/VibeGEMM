@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.device.serial-split-k",
+  "level": "device",
+  "name": "Serial split-K device protocol",
+  "summary": "Allocate and initialize tile semaphores so K partitions can update final output serially.",
+  "primitives": [
+    "bool SplitKSerial"
+  ],
+  "strategy": {
+    "intent": "Turn a composed GEMM kernel into a safe, reusable host-callable operation.",
+    "mechanism": "Allocate and initialize tile semaphores so K partitions can update final output serially.",
+    "expected_benefit": "Provides uniform validation, resource management, launch, and workload-mode integration.",
+    "tradeoffs": [
+      "Device wrappers add host-side policy and workspace requirements that must remain consistent with the selected kernel."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "split_k_slices",
+      "kind": "integer",
+      "description": "Device integration parameter: split_k_slices."
+    },
+    {
+      "name": "workspace",
+      "kind": "choice",
+      "description": "Device integration parameter: workspace."
+    },
+    {
+      "name": "stream",
+      "kind": "choice",
+      "description": "Device integration parameter: stream."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "resource",
+      "expression": "workspace contains one semaphore per output tile",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/device/gemm.h",
+        "line_start": 220,
+        "line_end": 220,
+        "symbol": "bool SplitKSerial",
+        "evidence": "The referenced CUTLASS device API implements this integration method."
+      }
+    ]
+  },
+  "tags": [
+    "device-api",
+    "split-k",
+    "serial",
+    "semaphore"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

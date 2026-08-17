@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.device.gemm-universal-adapter",
+  "level": "device",
+  "name": "Device adapter for SM80 universal GEMM",
+  "summary": "Wrap an Ampere universal GEMM kernel with host-side capability checks, workspace management, parameter initialization, update, and CUDA-stream launch operations.",
+  "primitives": [
+    "GemmUniversalAdapter",
+    "can_implement",
+    "initialize",
+    "run"
+  ],
+  "strategy": {
+    "intent": "Provide a stable device-level lifecycle around interchangeable SM80 GEMM kernels.",
+    "mechanism": "Delegate problem validation and parameter conversion to the kernel, manage required workspace, and launch the initialized operation on a caller-provided stream.",
+    "expected_benefit": "Separates kernel selection and device orchestration from low-level threadblock implementation details.",
+    "tradeoffs": [
+      "Kernel and adapter contracts must remain type-compatible.",
+      "Workspace requirements vary with execution mode and scheduler."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "arguments",
+      "kind": "choice",
+      "description": "Problem, tensor, stride, mode, and epilogue arguments."
+    },
+    {
+      "name": "workspace",
+      "kind": "integer",
+      "description": "Temporary device storage in bytes."
+    },
+    {
+      "name": "stream",
+      "kind": "choice",
+      "description": "CUDA stream for initialization and execution."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "dependency",
+      "expression": "Kernel satisfies GemmUniversal adapter contract",
+      "rationale": "The adapter calls kernel-defined argument, parameter, validation, and workspace interfaces."
+    },
+    {
+      "type": "resource",
+      "expression": "workspace_bytes >= Kernel::get_workspace_size(arguments)",
+      "rationale": "Required temporary storage must be available before initialization."
+    },
+    {
+      "type": "semantic",
+      "expression": "can_implement(arguments) == success",
+      "rationale": "Alignment, shape, and mode requirements must be checked before launch."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/device/gemm_universal_adapter.h",
+        "line_start": 123,
+        "line_end": 620,
+        "symbol": "GemmUniversalAdapter",
+        "evidence": "The adapter supplies capability checks, workspace sizing, initialization, argument updates, and stream-aware execution."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "device-api",
+    "adapter",
+    "workspace",
+    "cuda-stream"
+  ],
+  "status": "curated"
+}

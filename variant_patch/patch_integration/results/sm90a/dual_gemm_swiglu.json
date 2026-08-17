@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0.0",
+  "integration_id": "patch-integration:c962296c641f423c",
+  "architecture": "sm90a",
+  "variant_id": "dual_gemm_swiglu",
+  "mode": "placeholder_integration",
+  "real_llm_called": false,
+  "real_cuda_integration_performed": false,
+  "source": {
+    "localization_path": "variant_patch/patch_localization/results/sm90a/dual_gemm_swiglu.json",
+    "localization_sha256": "6ac08dfe8af50c724fa268bf02ae53df8f5905e9912f84716d429aab46e478fb",
+    "original_backbone_path": "backbone_optimization/progressive_refinement/artifacts/sm90a-placeholder-refinement-v1/trajectory-d5c451bafc8eeafb/step-0002-attempt-0.cu",
+    "original_backbone_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751"
+  },
+  "transaction": {
+    "atomic": true,
+    "partial_outputs_committed": false,
+    "steps": [
+      {
+        "index": 0,
+        "localization_id": "localization:7b852993101239f8",
+        "provider": "placeholder-integration-llm-v1",
+        "placeholder": true,
+        "prompt": {
+          "task": "generate_and_integrate_one_localized_cuda_patch",
+          "architecture": "sm90a",
+          "variant_id": "dual_gemm_swiglu",
+          "latest_candidate_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+          "original_backbone": {
+            "path": "backbone_optimization/progressive_refinement/artifacts/sm90a-placeholder-refinement-v1/trajectory-d5c451bafc8eeafb/step-0002-attempt-0.cu",
+            "sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+            "is_placeholder": true
+          },
+          "target_region": "epilogue",
+          "candidate_insertion_points": [
+            "after_final_accumulator_before_output_conversion",
+            "before_global_store"
+          ],
+          "computation": "activated = SiLU(gate) -> Y = activated * up",
+          "required_live_values": [
+            "gate",
+            "up"
+          ],
+          "produced_values": [
+            "Y"
+          ],
+          "tensor_requirements": [
+            {
+              "name": "gate",
+              "dtype": "fp32",
+              "layout": "tile"
+            },
+            {
+              "name": "up",
+              "dtype": "fp32",
+              "layout": "tile"
+            },
+            {
+              "name": "Y",
+              "dtype": "fp16|bf16",
+              "layout": "row_major"
+            }
+          ],
+          "backbone_invariants": [
+            "preserve GEMM tensor-core instruction family",
+            "preserve tile shapes and thread/warp mapping",
+            "preserve mainloop pipeline and synchronization unless required by the patch",
+            "preserve existing shared-memory and register lifetimes",
+            "modify only the selected localized region"
+          ],
+          "requirements": [
+            "modify only the localized region",
+            "preserve all unrelated backbone source",
+            "return the complete integrated CUDA source",
+            "preserve variant numerical semantics"
+          ]
+        },
+        "input_source_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+        "output_source_sha256": "13c15523f38441502ca110eaa750a53e311d366a395ea85dfff6a901d5a19c7d",
+        "status": "placeholder_transform_applied"
+      }
+    ],
+    "candidate_path": "variant_patch/patch_integration/artifacts/sm90a/dual_gemm_swiglu/kernel.variant.placeholder.cu",
+    "candidate_sha256": "13c15523f38441502ca110eaa750a53e311d366a395ea85dfff6a901d5a19c7d",
+    "status": "placeholder_candidate_committed"
+  },
+  "rollback": {
+    "action": "discard_candidate_and_restore_original_backbone",
+    "target_path": "backbone_optimization/progressive_refinement/artifacts/sm90a-placeholder-refinement-v1/trajectory-d5c451bafc8eeafb/step-0002-attempt-0.cu",
+    "target_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751"
+  },
+  "ready_for_real_validation": false,
+  "status": "integration_placeholder_created",
+  "next_stage": "replace_placeholder_or_final_validation"
+}

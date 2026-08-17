@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.tile.fast-f32-warp-policy",
+  "level": "tile",
+  "name": "SM80 fast-F32 warp tile policy",
+  "summary": "Map FP32 warp tiles onto TF32 Tensor Core instructions with configurable decomposition and accumulation behavior.",
+  "primitives": [
+    "class MmaTensorOpFastF32<"
+  ],
+  "strategy": {
+    "intent": "Construct a legal and performance-relevant GEMM tile mapping for the target architecture.",
+    "mechanism": "Decompose FP32 fragments into Tensor Core-compatible components within a warp-level tiled MMA.",
+    "expected_benefit": "Exposes data reuse and parallel Tensor Core work while respecting layout and resource limits.",
+    "tradeoffs": [
+      "Tile choices change shared-memory use, register pressure, occupancy, and available grid parallelism."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "warp_shape",
+      "kind": "shape",
+      "description": "Tunable or derived tile property: warp_shape."
+    },
+    {
+      "name": "instruction_shape",
+      "kind": "shape",
+      "description": "Tunable or derived tile property: instruction_shape."
+    },
+    {
+      "name": "rounding",
+      "kind": "choice",
+      "description": "Tunable or derived tile property: rounding."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "warp tile is divisible by instruction tile",
+      "rationale": "Every warp fragment must be covered."
+    },
+    {
+      "type": "dtype",
+      "expression": "FP32 inputs admit the selected TF32 policy",
+      "rationale": "Fast-F32 changes multiplication precision."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/warp/mma_tensor_op_fast_f32.h",
+        "line_start": 197,
+        "line_end": 197,
+        "symbol": "class MmaTensorOpFastF32<",
+        "evidence": "The referenced CUTLASS builder/core expression implements this tile decision."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "tf32",
+    "fast-f32",
+    "warp-tile"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted parameterized method; requires semantic review before promotion to curated."
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.collective.absmax-epilogue",
+  "level": "collective",
+  "name": "SM80 absolute-maximum epilogue",
+  "summary": "Store converted GEMM outputs while reducing their absolute maximum for quantization scaling.",
+  "primitives": [
+    "class EpilogueWithAbsMax"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Store converted GEMM outputs while reducing their absolute maximum for quantization scaling.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "output_type",
+      "kind": "choice",
+      "description": "Collective configuration parameter: output_type."
+    },
+    {
+      "name": "absmax_output",
+      "kind": "choice",
+      "description": "Collective configuration parameter: absmax_output."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "absmax observes every emitted output",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/threadblock/epilogue_with_absmax.h",
+        "line_start": 220,
+        "line_end": 220,
+        "symbol": "class EpilogueWithAbsMax",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "epilogue",
+    "absmax",
+    "quantization"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

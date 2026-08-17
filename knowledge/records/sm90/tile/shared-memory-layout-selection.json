@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.tile.shared-memory-layout-selection",
+  "level": "tile",
+  "name": "Select swizzled SM90 shared-memory operand layouts",
+  "summary": "Choose operand-specific Hopper shared-memory layout atoms from GMMA major mode, dtype, CTA tile extent, and reduction tile extent.",
+  "primitives": [
+    "smem_selector"
+  ],
+  "strategy": {
+    "intent": "Construct a legal and performance-relevant GEMM tile mapping for the target architecture.",
+    "mechanism": "Use RS/SS shared-memory selectors to produce layout atoms that are expanded to the collective tile and pipeline stages.",
+    "expected_benefit": "Exposes data reuse and parallel Tensor Core work while respecting layout and resource limits.",
+    "tradeoffs": [
+      "Tile choices change shared-memory use, register pressure, occupancy, and available grid parallelism."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "smem_layout_atom_a",
+      "kind": "choice",
+      "description": "Tunable or derived tile property: smem_layout_atom_a."
+    },
+    {
+      "name": "smem_layout_atom_b",
+      "kind": "choice",
+      "description": "Tunable or derived tile property: smem_layout_atom_b."
+    },
+    {
+      "name": "swizzle",
+      "kind": "choice",
+      "description": "Tunable or derived tile property: swizzle."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "layout",
+      "expression": "smem layout is compatible with WGMMA descriptor encoding",
+      "rationale": "WGMMA consumes shared operands through encoded strides/swizzles."
+    },
+    {
+      "type": "shape",
+      "expression": "layout_atom evenly tiles CTA operand tile",
+      "rationale": "tile_to_shape requires compatible extents."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/collective/builders/sm90_gmma_builder.inl",
+        "line_start": 264,
+        "line_end": 264,
+        "symbol": "smem_selector",
+        "evidence": "The referenced CUTLASS builder/core expression implements this tile decision."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "shared-memory",
+    "swizzle",
+    "wgmma-layout"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted parameterized method; requires semantic review before promotion to curated."
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0.0",
+  "integration_id": "patch-integration:6f99d9dfe2506a7e",
+  "architecture": "sm90",
+  "variant_id": "gemm_bias_gelu",
+  "mode": "placeholder_integration",
+  "real_llm_called": false,
+  "real_cuda_integration_performed": false,
+  "source": {
+    "localization_path": "variant_patch/patch_localization/results/sm90/gemm_bias_gelu.json",
+    "localization_sha256": "20e2ee7cb012a2225dc22ea918a23e85ca2af0a4541699c495192b0e98e781a1",
+    "original_backbone_path": "backbone_optimization/progressive_refinement/artifacts/sm90-placeholder-refinement-v1/trajectory-42b2f00be027422e/step-0002-attempt-0.cu",
+    "original_backbone_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751"
+  },
+  "transaction": {
+    "atomic": true,
+    "partial_outputs_committed": false,
+    "steps": [
+      {
+        "index": 0,
+        "localization_id": "localization:c4daa8ad137c493f",
+        "provider": "placeholder-integration-llm-v1",
+        "placeholder": true,
+        "prompt": {
+          "task": "generate_and_integrate_one_localized_cuda_patch",
+          "architecture": "sm90",
+          "variant_id": "gemm_bias_gelu",
+          "latest_candidate_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+          "original_backbone": {
+            "path": "backbone_optimization/progressive_refinement/artifacts/sm90-placeholder-refinement-v1/trajectory-42b2f00be027422e/step-0002-attempt-0.cu",
+            "sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+            "is_placeholder": true
+          },
+          "target_region": "epilogue",
+          "candidate_insertion_points": [
+            "after_final_accumulator_before_output_conversion",
+            "before_global_store"
+          ],
+          "computation": "biased = acc + bias -> Y = GELU(biased)",
+          "required_live_values": [
+            "acc",
+            "bias"
+          ],
+          "produced_values": [
+            "Y"
+          ],
+          "tensor_requirements": [
+            {
+              "name": "acc",
+              "dtype": "fp32",
+              "layout": "tile"
+            },
+            {
+              "name": "bias",
+              "dtype": "fp16|bf16|fp32",
+              "layout": "vector_N"
+            },
+            {
+              "name": "Y",
+              "dtype": "fp16|bf16",
+              "layout": "row_major"
+            }
+          ],
+          "backbone_invariants": [
+            "preserve GEMM tensor-core instruction family",
+            "preserve tile shapes and thread/warp mapping",
+            "preserve mainloop pipeline and synchronization unless required by the patch",
+            "preserve existing shared-memory and register lifetimes",
+            "modify only the selected localized region"
+          ],
+          "requirements": [
+            "modify only the localized region",
+            "preserve all unrelated backbone source",
+            "return the complete integrated CUDA source",
+            "preserve variant numerical semantics"
+          ]
+        },
+        "input_source_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+        "output_source_sha256": "debf3afac8b2b0cc578d1db2942aac9fb61fa5e6f8ac9f2e42bce58e6d3e183a",
+        "status": "placeholder_transform_applied"
+      }
+    ],
+    "candidate_path": "variant_patch/patch_integration/artifacts/sm90/gemm_bias_gelu/kernel.variant.placeholder.cu",
+    "candidate_sha256": "debf3afac8b2b0cc578d1db2942aac9fb61fa5e6f8ac9f2e42bce58e6d3e183a",
+    "status": "placeholder_candidate_committed"
+  },
+  "rollback": {
+    "action": "discard_candidate_and_restore_original_backbone",
+    "target_path": "backbone_optimization/progressive_refinement/artifacts/sm90-placeholder-refinement-v1/trajectory-42b2f00be027422e/step-0002-attempt-0.cu",
+    "target_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751"
+  },
+  "ready_for_real_validation": false,
+  "status": "integration_placeholder_created",
+  "next_stage": "replace_placeholder_or_final_validation"
+}

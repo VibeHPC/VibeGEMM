@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.tile.static-cta-cluster-shapes",
+  "level": "tile",
+  "name": "Static SM90 CTA and cluster tile shapes",
+  "summary": "Require compile-time CTA and thread-block cluster shapes when constructing Hopper GMMA/TMA collectives.",
+  "primitives": [
+    "is_static<TileShape_MNK>"
+  ],
+  "strategy": {
+    "intent": "Construct a legal and performance-relevant GEMM tile mapping for the target architecture.",
+    "mechanism": "Represent TileShape_MNK and ClusterShape_MNK as static CuTe shapes consumed by GMMA selection, TMA multicast, and scheduling.",
+    "expected_benefit": "Exposes data reuse and parallel Tensor Core work while respecting layout and resource limits.",
+    "tradeoffs": [
+      "Tile choices change shared-memory use, register pressure, occupancy, and available grid parallelism."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "tile_shape_mnk",
+      "kind": "shape",
+      "description": "Tunable or derived tile property: tile_shape_mnk."
+    },
+    {
+      "name": "cluster_shape_mnk",
+      "kind": "shape",
+      "description": "Tunable or derived tile property: cluster_shape_mnk."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "TileShape_MNK and ClusterShape_MNK are static",
+      "rationale": "Builder selection and layout construction occur at compile time."
+    },
+    {
+      "type": "resource",
+      "expression": "cluster_ctas <= architecture_cluster_limit",
+      "rationale": "Cluster shape must be launchable on Hopper."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/collective/builders/sm90_gmma_builder.inl",
+        "line_start": 232,
+        "line_end": 232,
+        "symbol": "is_static<TileShape_MNK>",
+        "evidence": "The referenced CUTLASS builder/core expression implements this tile decision."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "cta-tile",
+    "cluster-shape",
+    "static-shape"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted parameterized method; requires semantic review before promotion to curated."
+  ]
+}

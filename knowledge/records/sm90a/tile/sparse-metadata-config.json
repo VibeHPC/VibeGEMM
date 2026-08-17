@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.tile.sparse-metadata-config",
+  "level": "tile",
+  "name": "SM90 sparse metadata tile configuration",
+  "summary": "Derive compressed operand and metadata tile shapes, layouts, and alignments for Hopper sparse WGMMA.",
+  "primitives": [
+    "struct Sm90GemmSparseConfig"
+  ],
+  "strategy": {
+    "intent": "Construct a legal and performance-relevant GEMM tile mapping for the target architecture.",
+    "mechanism": "Transform dense problem and CTA shapes into the storage geometry required by structured sparsity.",
+    "expected_benefit": "Exposes data reuse and parallel Tensor Core work while respecting layout and resource limits.",
+    "tradeoffs": [
+      "Tile choices change shared-memory use, register pressure, occupancy, and available grid parallelism."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "tile_shape_mnk",
+      "kind": "shape",
+      "description": "Tunable or derived tile property: tile_shape_mnk."
+    },
+    {
+      "name": "metadata_type",
+      "kind": "choice",
+      "description": "Tunable or derived tile property: metadata_type."
+    },
+    {
+      "name": "sparsity",
+      "kind": "choice",
+      "description": "Tunable or derived tile property: sparsity."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "compressed K and metadata extents are integral",
+      "rationale": "Sparse storage packs fixed nonzero groups."
+    },
+    {
+      "type": "dependency",
+      "expression": "sparse WGMMA atom matches metadata format",
+      "rationale": "Instruction metadata encoding is fixed."
+    }
+  ],
+  "architectures": [
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/collective/builders/sm90_sparse_config.inl",
+        "line_start": 58,
+        "line_end": 58,
+        "symbol": "struct Sm90GemmSparseConfig",
+        "evidence": "The referenced CUTLASS builder/core expression implements this tile decision."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "sparse",
+    "metadata",
+    "tile-builder"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted parameterized method; requires semantic review before promotion to curated."
+  ]
+}

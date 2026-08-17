@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.kernel.gemm-universal-multistage",
+  "level": "kernel",
+  "name": "SM80 GEMM Universal with multistage threadblock MMA",
+  "summary": "Compose an Ampere multistage threadblock MMA and epilogue into a universal GEMM kernel supporting standard, split-K, batched, and array execution modes.",
+  "primitives": [
+    "kernel::GemmUniversal",
+    "MmaMultistage",
+    "Epilogue",
+    "ThreadblockSwizzle"
+  ],
+  "strategy": {
+    "intent": "Turn a tuned SM80 mainloop into a complete, broadly usable GEMM kernel.",
+    "mechanism": "Map grid tiles through a swizzle, run the multistage MMA over K partitions, and apply an output epilogue under the selected universal GEMM mode.",
+    "expected_benefit": "Reuses one optimized kernel structure across common GEMM execution modes and problem layouts.",
+    "tradeoffs": [
+      "Split-K modes require additional reduction or synchronization handling.",
+      "Grid swizzle and split-K choices are workload dependent."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "mode",
+      "kind": "choice",
+      "description": "Universal GEMM execution mode.",
+      "values": [
+        "gemm",
+        "split_k_parallel",
+        "batched",
+        "array"
+      ]
+    },
+    {
+      "name": "threadblock_swizzle",
+      "kind": "choice",
+      "description": "Mapping from CUDA blocks to GEMM tiles."
+    },
+    {
+      "name": "split_k_slices",
+      "kind": "integer",
+      "description": "Number of partitions along K."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "dependency",
+      "expression": "Mma and Epilogue have compatible accumulator fragments",
+      "rationale": "The epilogue consumes the threadblock MMA accumulator tile."
+    },
+    {
+      "type": "semantic",
+      "expression": "mode-specific batch strides or pointer arrays are valid",
+      "rationale": "Universal modes interpret tensor references differently."
+    },
+    {
+      "type": "resource",
+      "expression": "shared_storage fits device limit",
+      "rationale": "Kernel shared storage overlays mainloop and epilogue storage."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/gemm_universal.h",
+        "line_start": 65,
+        "line_end": 520,
+        "symbol": "GemmUniversal",
+        "evidence": "The kernel composes Mma, Epilogue, swizzle, universal mode arguments, tiled grid shape, and mode-dependent execution."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "gemm-kernel",
+    "universal-gemm",
+    "split-k",
+    "batched"
+  ],
+  "status": "curated"
+}

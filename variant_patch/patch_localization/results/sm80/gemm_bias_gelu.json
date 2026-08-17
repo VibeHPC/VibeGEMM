@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0.0",
+  "localization_set_id": "patch-localization:589f6505d441f6ef",
+  "architecture": "sm80",
+  "variant_id": "gemm_bias_gelu",
+  "source": {
+    "analysis_path": "variant_patch/variant_analysis/results/gemm_bias_gelu.json",
+    "analysis_sha256": "81f42dba769766acca3d6c2349197fe98be3cb19812c1428b97acda7d60bb828",
+    "refinement_path": "backbone_optimization/progressive_refinement/results/sm80.json",
+    "refinement_sha256": "20ef18033909db7937bfc18cd0d2c1c28790d05121bc577930ea9100332b7c78",
+    "backbone_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-4cc69f56b5239d6a/step-0002-attempt-0.cu",
+    "backbone_sha256": "a1a44f7ecafa0d154e9c98c4dfbda99e2e2c05d58703fba8761258dee89796a4",
+    "backbone_is_placeholder": true
+  },
+  "backbone_invariants": [
+    "preserve GEMM tensor-core instruction family",
+    "preserve tile shapes and thread/warp mapping",
+    "preserve mainloop pipeline and synchronization unless required by the patch",
+    "preserve existing shared-memory and register lifetimes",
+    "modify only the selected localized region"
+  ],
+  "localizations": [
+    {
+      "localization_id": "localization:39bd84dd8c375a1b",
+      "group_id": "patch-group:e3192e41b75ca1e8",
+      "semantic_stage": "epilogue",
+      "backbone_region": "epilogue",
+      "candidate_insertion_points": [
+        "after_final_accumulator_before_output_conversion",
+        "before_global_store"
+      ],
+      "required_live_values": [
+        "acc",
+        "bias"
+      ],
+      "produced_values": [
+        "Y"
+      ],
+      "tensor_requirements": [
+        {
+          "name": "acc",
+          "dtype": "fp32",
+          "layout": "tile"
+        },
+        {
+          "name": "bias",
+          "dtype": "fp16|bf16|fp32",
+          "layout": "vector_N"
+        },
+        {
+          "name": "Y",
+          "dtype": "fp16|bf16",
+          "layout": "row_major"
+        }
+      ],
+      "computation": "biased = acc + bias -> Y = GELU(biased)",
+      "requires_reduction": false,
+      "source_anchor_matches": [],
+      "source_resolution": "symbolic_only",
+      "status": "symbolic_localized"
+    }
+  ],
+  "status": "symbolic_localized",
+  "next_stage": "patch_integration"
+}

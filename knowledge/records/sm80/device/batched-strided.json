@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.device.batched-strided",
+  "level": "device",
+  "name": "Strided batched GEMM interface",
+  "summary": "Execute a batch of same-shaped GEMMs whose operands are separated by user-provided batch strides.",
+  "primitives": [
+    "class GemmBatched"
+  ],
+  "strategy": {
+    "intent": "Turn a composed GEMM kernel into a safe, reusable host-callable operation.",
+    "mechanism": "Execute a batch of same-shaped GEMMs whose operands are separated by user-provided batch strides.",
+    "expected_benefit": "Provides uniform validation, resource management, launch, and workload-mode integration.",
+    "tradeoffs": [
+      "Device wrappers add host-side policy and workspace requirements that must remain consistent with the selected kernel."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "batch_count",
+      "kind": "integer",
+      "description": "Device integration parameter: batch_count."
+    },
+    {
+      "name": "batch_stride_a",
+      "kind": "integer",
+      "description": "Device integration parameter: batch_stride_a."
+    },
+    {
+      "name": "batch_stride_b",
+      "kind": "integer",
+      "description": "Device integration parameter: batch_stride_b."
+    },
+    {
+      "name": "batch_stride_c",
+      "kind": "integer",
+      "description": "Device integration parameter: batch_stride_c."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "layout",
+      "expression": "batch strides address non-overlapping operands unless aliasing is intentional",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/device/gemm_batched.h",
+        "line_start": 221,
+        "line_end": 221,
+        "symbol": "class GemmBatched",
+        "evidence": "The referenced CUTLASS device API implements this integration method."
+      }
+    ]
+  },
+  "tags": [
+    "device-api",
+    "batched",
+    "strided"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

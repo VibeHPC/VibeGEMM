@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.kernel.grouped-per-group-scale",
+  "level": "kernel",
+  "name": "Grouped GEMM per-group scaling",
+  "summary": "Apply problem-specific scale factors while executing a grouped GEMM kernel.",
+  "primitives": [
+    "struct GemmGroupedPerGroupScale"
+  ],
+  "strategy": {
+    "intent": "Compose validated GEMM collectives with a grid/work scheduler into a complete CUDA kernel.",
+    "mechanism": "Apply problem-specific scale factors while executing a grouped GEMM kernel.",
+    "expected_benefit": "Improves device utilization, overlap, locality, or workload coverage while preserving collective implementations.",
+    "tradeoffs": [
+      "Kernel schedules constrain tile shapes, resources, synchronization, and applicable problem regimes."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "problem_count",
+      "kind": "integer",
+      "description": "Kernel configuration parameter: problem_count."
+    },
+    {
+      "name": "group_scales",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: group_scales."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "one valid scale configuration exists per problem",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/gemm_grouped_per_group_scale.h",
+        "line_start": 66,
+        "line_end": 66,
+        "symbol": "struct GemmGroupedPerGroupScale",
+        "evidence": "The referenced CUTLASS kernel or scheduler implements this composition strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "grouped-gemm",
+    "per-group",
+    "scaling"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

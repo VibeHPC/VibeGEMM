@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90a.collective.sparse-metadata-flow",
+  "level": "collective",
+  "name": "SM90 sparse WGMMA metadata flow",
+  "summary": "Stage structured-sparsity metadata with operands, permute it into the required format, and load metadata fragments before sparse WGMMA.",
+  "primitives": [
+    "offline permutation for the metadata"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Stage structured-sparsity metadata with operands, permute it into the required format, and load metadata fragments before sparse WGMMA.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "metadata_layout",
+      "kind": "choice",
+      "description": "Collective configuration parameter: metadata_layout."
+    },
+    {
+      "name": "sparsity_selector",
+      "kind": "choice",
+      "description": "Collective configuration parameter: sparsity_selector."
+    },
+    {
+      "name": "stages",
+      "kind": "integer",
+      "description": "Collective configuration parameter: stages."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "A satisfies structured sparsity contract",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    },
+    {
+      "type": "layout",
+      "expression": "metadata permutation matches sparse WGMMA Atom",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/collective/sm90_sparse_mma_tma_gmma_ss_warpspecialized.hpp",
+        "line_start": 136,
+        "line_end": 136,
+        "symbol": "offline permutation for the metadata",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "sparse",
+    "metadata",
+    "wgmma",
+    "tma"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

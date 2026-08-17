@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.atom.method.mma-sync-a-int4-b-uint4-c-int32-d-int32-satfinite",
+  "level": "atom",
+  "name": "Parameterized SM80 MMA.SYNC method",
+  "summary": "Use the SM80 MMA.SYNC family for A == int4 && B == uint4 && C == int32 && D == int32, selecting a supported instruction shape and layout from CUTLASS wrappers.",
+  "primitives": [
+    "mma.sync"
+  ],
+  "strategy": {
+    "intent": "Map GEMM arithmetic to architecture-native Tensor Core instructions.",
+    "mechanism": "Distribute register fragments across 32 threads and issue the exact MMA.SYNC PTX instruction exposed by the CUTLASS wrapper.",
+    "expected_benefit": "Uses the GPU matrix-multiply datapath instead of scalar arithmetic.",
+    "tradeoffs": [
+      "Requires compatible fragment layouts, data types, alignment, and architecture support."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "mma_shape",
+      "kind": "shape",
+      "description": "Supported instruction M, N, and K shapes.",
+      "values": [
+        [
+          16,
+          8,
+          64
+        ]
+      ]
+    },
+    {
+      "name": "layout_a",
+      "kind": "choice",
+      "description": "Supported A instruction layouts.",
+      "values": [
+        "row"
+      ]
+    },
+    {
+      "name": "layout_b",
+      "kind": "choice",
+      "description": "Supported B instruction layouts.",
+      "values": [
+        "col"
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "type": "architecture",
+      "expression": "arch >= sm80",
+      "rationale": "The instruction is exposed by the SM80 architecture wrapper."
+    },
+    {
+      "type": "dtype",
+      "expression": "A == int4 && B == uint4 && C == int32 && D == int32",
+      "rationale": "Operand types are encoded by the PTX instruction."
+    },
+    {
+      "type": "shape",
+      "expression": "mma_shape in supported_shapes",
+      "rationale": "The normalized method aggregates the concrete instruction shapes listed in parameters."
+    },
+    {
+      "type": "dependency",
+      "expression": "threads_per_mma == 32",
+      "rationale": "MMA.SYNC is warp-level."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/arch/mma_sm80.h",
+        "line_start": 1209,
+        "line_end": 1209,
+        "symbol": "mma.sync.aligned",
+        "evidence": "The CUTLASS wrapper emits this exact SM80 MMA.SYNC instruction."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "mma-sync",
+    "tensor-core",
+    "int4",
+    "uint4",
+    "int32"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Automatically normalized from concrete CUTLASS wrapper candidates.",
+    "All concrete candidate IDs are retained in atom-method-membership.json.",
+    "Requires semantic review before promotion to curated."
+  ]
+}

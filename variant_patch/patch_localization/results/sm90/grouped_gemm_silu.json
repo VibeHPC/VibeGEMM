@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "localization_set_id": "patch-localization:c82868fc3f6a5d5b",
+  "architecture": "sm90",
+  "variant_id": "grouped_gemm_silu",
+  "source": {
+    "analysis_path": "variant_patch/variant_analysis/results/grouped_gemm_silu.json",
+    "analysis_sha256": "239228bb1583f97f31ea7f906389e700d911f110dbf3955407b5e98fe9d454d6",
+    "refinement_path": "backbone_optimization/progressive_refinement/results/sm90.json",
+    "refinement_sha256": "d4bdd47d53884cde9084938c15f7f2f2dc7f64a97a425b756f7110e0c0f3200e",
+    "backbone_path": "backbone_optimization/progressive_refinement/artifacts/sm90-placeholder-refinement-v1/trajectory-42b2f00be027422e/step-0002-attempt-0.cu",
+    "backbone_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+    "backbone_is_placeholder": true
+  },
+  "backbone_invariants": [
+    "preserve GEMM tensor-core instruction family",
+    "preserve tile shapes and thread/warp mapping",
+    "preserve mainloop pipeline and synchronization unless required by the patch",
+    "preserve existing shared-memory and register lifetimes",
+    "modify only the selected localized region"
+  ],
+  "localizations": [
+    {
+      "localization_id": "localization:79d2f374b752a5fe",
+      "group_id": "patch-group:ddaa79386b55f486",
+      "semantic_stage": "epilogue",
+      "backbone_region": "epilogue",
+      "candidate_insertion_points": [
+        "after_final_accumulator_before_output_conversion",
+        "before_global_store"
+      ],
+      "required_live_values": [
+        "acc_i"
+      ],
+      "produced_values": [
+        "Yi"
+      ],
+      "tensor_requirements": [
+        {
+          "name": "acc_i",
+          "dtype": "fp32",
+          "layout": "grouped_tile"
+        },
+        {
+          "name": "Yi",
+          "dtype": "fp16|bf16",
+          "layout": "grouped_row"
+        }
+      ],
+      "computation": "Yi = SiLU(acc_i)",
+      "requires_reduction": false,
+      "source_anchor_matches": [],
+      "source_resolution": "symbolic_only",
+      "status": "symbolic_localized"
+    }
+  ],
+  "status": "symbolic_localized",
+  "next_stage": "patch_integration"
+}

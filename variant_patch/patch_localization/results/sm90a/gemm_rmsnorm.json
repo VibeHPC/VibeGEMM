@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0.0",
+  "localization_set_id": "patch-localization:b153e90742210666",
+  "architecture": "sm90a",
+  "variant_id": "gemm_rmsnorm",
+  "source": {
+    "analysis_path": "variant_patch/variant_analysis/results/gemm_rmsnorm.json",
+    "analysis_sha256": "f28bf23b37aec29e24344a631805ffd56cf0882e9bef2ad8365a2c9ec26e907f",
+    "refinement_path": "backbone_optimization/progressive_refinement/results/sm90a.json",
+    "refinement_sha256": "01e79b1caff50807586a61725f4092be0964b3fb9f78320f29c1a672d7426e82",
+    "backbone_path": "backbone_optimization/progressive_refinement/artifacts/sm90a-placeholder-refinement-v1/trajectory-d5c451bafc8eeafb/step-0002-attempt-0.cu",
+    "backbone_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+    "backbone_is_placeholder": true
+  },
+  "backbone_invariants": [
+    "preserve GEMM tensor-core instruction family",
+    "preserve tile shapes and thread/warp mapping",
+    "preserve mainloop pipeline and synchronization unless required by the patch",
+    "preserve existing shared-memory and register lifetimes",
+    "modify only the selected localized region"
+  ],
+  "localizations": [
+    {
+      "localization_id": "localization:d7051669640700ba",
+      "group_id": "patch-group:29e464175d0619fa",
+      "semantic_stage": "epilogue",
+      "backbone_region": "epilogue",
+      "candidate_insertion_points": [
+        "epilogue_cross_thread_reduction_before_global_store",
+        "after_final_accumulator_before_output_conversion",
+        "before_global_store"
+      ],
+      "required_live_values": [
+        "acc"
+      ],
+      "produced_values": [
+        "Y"
+      ],
+      "tensor_requirements": [
+        {
+          "name": "acc",
+          "dtype": "fp32",
+          "layout": "tile"
+        },
+        {
+          "name": "Y",
+          "dtype": "fp16|bf16",
+          "layout": "row_major"
+        }
+      ],
+      "computation": "mean_sq = mean(acc^2, axis=N) -> inv_rms = rsqrt(mean_sq + epsilon) -> Y = acc * inv_rms",
+      "requires_reduction": true,
+      "source_anchor_matches": [],
+      "source_resolution": "symbolic_only",
+      "status": "symbolic_localized"
+    }
+  ],
+  "status": "symbolic_localized",
+  "next_stage": "patch_integration"
+}

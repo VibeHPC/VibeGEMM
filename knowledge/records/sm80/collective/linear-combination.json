@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.collective.linear-combination",
+  "level": "collective",
+  "name": "Linear-combination output operation",
+  "summary": "Compute D = alpha times accumulator plus beta times source with configurable compute and output conversion types.",
+  "primitives": [
+    "class LinearCombination"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Compute D = alpha times accumulator plus beta times source with configurable compute and output conversion types.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "alpha",
+      "kind": "choice",
+      "description": "Collective configuration parameter: alpha."
+    },
+    {
+      "name": "beta",
+      "kind": "choice",
+      "description": "Collective configuration parameter: beta."
+    },
+    {
+      "name": "compute_dtype",
+      "kind": "choice",
+      "description": "Collective configuration parameter: compute_dtype."
+    },
+    {
+      "name": "output_dtype",
+      "kind": "choice",
+      "description": "Collective configuration parameter: output_dtype."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "dtype",
+      "expression": "accumulator is convertible to compute and output types",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/thread/linear_combination.h",
+        "line_start": 68,
+        "line_end": 68,
+        "symbol": "class LinearCombination",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "epilogue",
+    "linear-combination",
+    "conversion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

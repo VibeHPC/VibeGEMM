@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.atom.method.tma-reduce-add",
+  "level": "atom",
+  "name": "Parameterized Hopper tma reduce add method",
+  "summary": "Use Hopper TMA reduce-add wrappers, selecting a supported tensor rank.",
+  "primitives": [
+    "TMA"
+  ],
+  "strategy": {
+    "intent": "Map GEMM arithmetic to architecture-native Tensor Core instructions.",
+    "mechanism": "Issue an asynchronous Hopper TMA reduce-add using a CUtensorMap descriptor instead of per-thread global-memory address calculations.",
+    "expected_benefit": "Uses the GPU matrix-multiply datapath instead of scalar arithmetic.",
+    "tradeoffs": [
+      "Requires compatible fragment layouts, data types, alignment, and architecture support."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "tensor_rank",
+      "kind": "integer",
+      "description": "Supported tensor-map coordinate ranks.",
+      "values": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "cache_hint",
+      "kind": "integer",
+      "description": "Optional TMA cache hint."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "architecture",
+      "expression": "arch in {sm90, sm90a}",
+      "rationale": "TMA is a Hopper data-movement facility."
+    },
+    {
+      "type": "dependency",
+      "expression": "valid_CUtensorMap_descriptor",
+      "rationale": "TMA instructions consume a tensor-map descriptor."
+    },
+    {
+      "type": "layout",
+      "expression": "tensor_shape_stride_and_smem_layout_match_descriptor",
+      "rationale": "Descriptor coordinates and destination layout must agree."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cute/arch/copy_sm90_tma.hpp",
+        "line_start": 1281,
+        "line_end": 1281,
+        "symbol": "SM90_TMA_REDUCE_ADD_1D",
+        "evidence": "CUTLASS declares this rank/operation-specific TMA wrapper at the referenced line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/copy_sm90_tma.hpp",
+        "line_start": 1304,
+        "line_end": 1304,
+        "symbol": "SM90_TMA_REDUCE_ADD_2D",
+        "evidence": "CUTLASS declares this rank/operation-specific TMA wrapper at the referenced line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/copy_sm90_tma.hpp",
+        "line_start": 1327,
+        "line_end": 1327,
+        "symbol": "SM90_TMA_REDUCE_ADD_3D",
+        "evidence": "CUTLASS declares this rank/operation-specific TMA wrapper at the referenced line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/copy_sm90_tma.hpp",
+        "line_start": 1350,
+        "line_end": 1350,
+        "symbol": "SM90_TMA_REDUCE_ADD_4D",
+        "evidence": "CUTLASS declares this rank/operation-specific TMA wrapper at the referenced line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/copy_sm90_tma.hpp",
+        "line_start": 1373,
+        "line_end": 1373,
+        "symbol": "SM90_TMA_REDUCE_ADD_5D",
+        "evidence": "CUTLASS declares this rank/operation-specific TMA wrapper at the referenced line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/copy_sm90_tma.hpp",
+        "line_start": 1396,
+        "line_end": 1396,
+        "symbol": "SM90_TMA_REDUCE_ADD",
+        "evidence": "CUTLASS declares this rank/operation-specific TMA wrapper at the referenced line."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "tma",
+    "reduce-add",
+    "rank-1"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Automatically normalized from concrete CUTLASS wrapper candidates.",
+    "All concrete candidate IDs are retained in atom-method-membership.json.",
+    "Requires semantic review before promotion to curated."
+  ]
+}

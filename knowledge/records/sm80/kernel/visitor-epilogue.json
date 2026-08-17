@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.kernel.visitor-epilogue",
+  "level": "kernel",
+  "name": "SM80 universal kernel with visitor epilogue",
+  "summary": "Compose a universal GEMM mainloop with callback-driven fused epilogue behavior.",
+  "primitives": [
+    "class GemmWithEpilogueVisitor"
+  ],
+  "strategy": {
+    "intent": "Compose validated GEMM collectives with a grid/work scheduler into a complete CUDA kernel.",
+    "mechanism": "Compose a universal GEMM mainloop with callback-driven fused epilogue behavior.",
+    "expected_benefit": "Improves device utilization, overlap, locality, or workload coverage while preserving collective implementations.",
+    "tradeoffs": [
+      "Kernel schedules constrain tile shapes, resources, synchronization, and applicable problem regimes."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "visitor",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: visitor."
+    },
+    {
+      "name": "mode",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: mode."
+    },
+    {
+      "name": "split_k_slices",
+      "kind": "integer",
+      "description": "Kernel configuration parameter: split_k_slices."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "dependency",
+      "expression": "visitor protocol matches kernel epilogue hooks",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/gemm_universal_with_visitor.h",
+        "line_start": 55,
+        "line_end": 55,
+        "symbol": "class GemmWithEpilogueVisitor",
+        "evidence": "The referenced CUTLASS kernel or scheduler implements this composition strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "visitor",
+    "fusion",
+    "universal-gemm"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

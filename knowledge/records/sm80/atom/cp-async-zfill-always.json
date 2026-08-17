@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.atom.cp-async-zfill-always",
+  "level": "atom",
+  "name": "SM80 cp_async_zfill with Always cache policy",
+  "summary": "Use the Ampere cp_async_zfill wrapper to zero-fill the shared-memory destination when the copy predicate is false under the Always cache policy.",
+  "primitives": [
+    "cp.async",
+    "cp_async_zfill",
+    "CacheOperation::Always"
+  ],
+  "strategy": {
+    "intent": "Map GEMM arithmetic to architecture-native Tensor Core instructions.",
+    "mechanism": "Issue cp.async from global to shared memory and use the wrapper's zfill behavior.",
+    "expected_benefit": "Uses the GPU matrix-multiply datapath instead of scalar arithmetic.",
+    "tradeoffs": [
+      "Requires compatible fragment layouts, data types, alignment, and architecture support."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "access_bytes",
+      "kind": "integer",
+      "description": "Asynchronous copy access width supported by the specialization."
+    },
+    {
+      "name": "cache_policy",
+      "kind": "choice",
+      "description": "L1/L2 cache behavior.",
+      "values": [
+        "Always"
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "type": "architecture",
+      "expression": "arch >= sm80",
+      "rationale": "cp.async first appears on Ampere."
+    },
+    {
+      "type": "layout",
+      "expression": "global_and_shared_addresses_satisfy_access_alignment",
+      "rationale": "The instruction requires alignment matching its access width."
+    },
+    {
+      "type": "dependency",
+      "expression": "destination_in_shared_memory",
+      "rationale": "cp.async transfers from global memory to shared memory."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/arch/memory_sm80.h",
+        "line_start": 151,
+        "line_end": 151,
+        "symbol": "cp_async_zfill",
+        "evidence": "CUTLASS specializes this cp.async wrapper and cache policy at the referenced declaration."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "cp-async",
+    "cp-async-zfill",
+    "always",
+    "global-to-shared"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Automatically extracted; requires semantic review before promotion to curated."
+  ]
+}

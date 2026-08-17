@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.collective.pipelined-mainloop",
+  "level": "collective",
+  "name": "SM80 two-stage pipelined mainloop",
+  "summary": "Double-buffer global-to-shared movement and warp MMA for a compact two-stage Tensor Core mainloop.",
+  "primitives": [
+    "class MmaPipelined"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Double-buffer global-to-shared movement and warp MMA for a compact two-stage Tensor Core mainloop.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "threadblock_shape",
+      "kind": "choice",
+      "description": "Collective configuration parameter: threadblock_shape."
+    },
+    {
+      "name": "warp_shape",
+      "kind": "choice",
+      "description": "Collective configuration parameter: warp_shape."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "resource",
+      "expression": "two operand stages fit shared memory",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/threadblock/mma_pipelined.h",
+        "line_start": 92,
+        "line_end": 92,
+        "symbol": "class MmaPipelined",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "mainloop",
+    "double-buffer"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

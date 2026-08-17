@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.kernel.universal-gemm-modes",
+  "level": "kernel",
+  "name": "SM80 Universal GEMM mode dispatch",
+  "summary": "Dispatch one composed MMA/epilogue kernel across standard, split-K, batched, and array GEMM modes.",
+  "primitives": [
+    "GemmUniversalMode"
+  ],
+  "strategy": {
+    "intent": "Compose validated GEMM collectives with a grid/work scheduler into a complete CUDA kernel.",
+    "mechanism": "Dispatch one composed MMA/epilogue kernel across standard, split-K, batched, and array GEMM modes.",
+    "expected_benefit": "Improves device utilization, overlap, locality, or workload coverage while preserving collective implementations.",
+    "tradeoffs": [
+      "Kernel schedules constrain tile shapes, resources, synchronization, and applicable problem regimes."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "mode",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: mode."
+    },
+    {
+      "name": "batch_count",
+      "kind": "integer",
+      "description": "Kernel configuration parameter: batch_count."
+    },
+    {
+      "name": "split_k_slices",
+      "kind": "integer",
+      "description": "Kernel configuration parameter: split_k_slices."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "mode-specific pointer and stride interpretation is valid",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/gemm_universal.h",
+        "line_start": 159,
+        "line_end": 159,
+        "symbol": "GemmUniversalMode",
+        "evidence": "The referenced CUTLASS kernel or scheduler implements this composition strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "universal-gemm",
+    "batched",
+    "array",
+    "split-k"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

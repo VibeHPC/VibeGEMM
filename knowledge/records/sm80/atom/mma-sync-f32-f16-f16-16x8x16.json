@@ -1,0 +1,94 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.atom.mma-sync-f32-f16-f16-16x8x16",
+  "level": "atom",
+  "name": "Ampere MMA.SYNC 16x8x16 FP16 with FP32 accumulation",
+  "summary": "Use a warp-level Ampere Tensor Core MMA instruction with FP16 register fragments and FP32 accumulator fragments for a fixed 16x8x16 matrix operation.",
+  "primitives": [
+    "mma.sync",
+    "arch::Mma<GemmShape<16,8,16>>"
+  ],
+  "strategy": {
+    "intent": "Map FP16 GEMM arithmetic to A100 Tensor Cores.",
+    "mechanism": "Distribute A, B, and accumulator fragments across one warp and issue mma.sync.aligned.m16n8k16 with FP32 accumulation.",
+    "expected_benefit": "Provides substantially higher matrix multiply throughput than scalar or SIMT FP32 arithmetic.",
+    "tradeoffs": [
+      "Requires warp-synchronous fragment layouts.",
+      "The instruction shape and operand layouts are fixed by hardware."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "layout_a",
+      "kind": "choice",
+      "description": "Instruction layout for A.",
+      "values": [
+        "row_major"
+      ]
+    },
+    {
+      "name": "layout_b",
+      "kind": "choice",
+      "description": "Instruction layout for B.",
+      "values": [
+        "column_major"
+      ]
+    },
+    {
+      "name": "operator",
+      "kind": "choice",
+      "description": "Multiply-add semantic.",
+      "values": [
+        "OpMultiplyAdd"
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "type": "architecture",
+      "expression": "arch >= sm80",
+      "rationale": "The wrapper is enabled by CUTLASS_ARCH_MMA_SM80_ENABLED."
+    },
+    {
+      "type": "dtype",
+      "expression": "A == fp16 && B == fp16 && accumulator == fp32",
+      "rationale": "The specialization and PTX instruction encode these types."
+    },
+    {
+      "type": "shape",
+      "expression": "mma_shape == (16, 8, 16)",
+      "rationale": "The Ampere hardware instruction has a fixed shape."
+    },
+    {
+      "type": "dependency",
+      "expression": "threads_per_mma == 32",
+      "rationale": "mma.sync is issued collectively by one warp."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/arch/mma_sm80.h",
+        "line_start": 407,
+        "line_end": 466,
+        "symbol": "mma.sync.aligned.m16n8k16",
+        "evidence": "The specialization declares FP16 A/B fragments, FP32 C/D fragments, Sm80, and emits the m16n8k16 Tensor Core instruction."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "mma-sync",
+    "tensor-core",
+    "fp16",
+    "fp32-accumulation",
+    "warp-level"
+  ],
+  "status": "curated"
+}

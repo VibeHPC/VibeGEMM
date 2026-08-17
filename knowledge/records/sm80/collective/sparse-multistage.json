@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.collective.sparse-multistage",
+  "level": "collective",
+  "name": "SM80 sparse multistage mainloop",
+  "summary": "Pipeline compressed operands and sparsity metadata through shared memory before issuing SM80 sparse Tensor Core operations.",
+  "primitives": [
+    "class SparseMmaMultistage"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Pipeline compressed operands and sparsity metadata through shared memory before issuing SM80 sparse Tensor Core operations.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "stages",
+      "kind": "integer",
+      "description": "Collective configuration parameter: stages."
+    },
+    {
+      "name": "metadata_layout",
+      "kind": "choice",
+      "description": "Collective configuration parameter: metadata_layout."
+    },
+    {
+      "name": "sparsity_selector",
+      "kind": "choice",
+      "description": "Collective configuration parameter: sparsity_selector."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "operand satisfies 2:4 structured sparsity",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    },
+    {
+      "type": "layout",
+      "expression": "metadata matches sparse MMA encoding",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/threadblock/mma_sparse_multistage.h",
+        "line_start": 97,
+        "line_end": 97,
+        "symbol": "class SparseMmaMultistage",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "sparse",
+    "mainloop",
+    "metadata"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

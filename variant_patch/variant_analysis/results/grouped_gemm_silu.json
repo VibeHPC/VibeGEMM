@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0.0",
+  "analysis_id": "variant-analysis:fdd868bbf00b27f8",
+  "variant_id": "grouped_gemm_silu",
+  "name": "Grouped GEMM + SiLU",
+  "supported_architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "problem": {
+    "dimensions": [
+      "groups",
+      "Mi",
+      "N",
+      "K"
+    ],
+    "representative_shapes": [
+      [
+        3,
+        [
+          128,
+          512,
+          64
+        ],
+        4096,
+        14336
+      ]
+    ]
+  },
+  "reference": {
+    "kind": "symbolic",
+    "description": "Yi = SiLU(Xi @ Wi)"
+  },
+  "backbone_operations": [
+    "grouped_gemm"
+  ],
+  "variant_operations": [
+    {
+      "id": "silu",
+      "kind": "silu",
+      "inputs": [
+        "acc_i"
+      ],
+      "outputs": [
+        "Yi"
+      ],
+      "expression": "Yi = SiLU(acc_i)",
+      "topological_index": 1
+    }
+  ],
+  "data_dependencies": [
+    {
+      "value": "Yi",
+      "producer": "silu",
+      "consumers": []
+    },
+    {
+      "value": "acc_i",
+      "producer": "grouped_gemm",
+      "consumers": [
+        "silu"
+      ]
+    }
+  ],
+  "patch_groups": [
+    {
+      "group_id": "patch-group:ddaa79386b55f486",
+      "operation_ids": [
+        "silu"
+      ],
+      "computation": "Yi = SiLU(acc_i)",
+      "inputs": [
+        "acc_i"
+      ],
+      "outputs": [
+        "Yi"
+      ],
+      "tensor_requirements": [
+        {
+          "name": "acc_i",
+          "dtype": "fp32",
+          "layout": "grouped_tile"
+        },
+        {
+          "name": "Yi",
+          "dtype": "fp16|bf16",
+          "layout": "grouped_row"
+        }
+      ],
+      "availability_stage": "epilogue",
+      "stage_rationale": "its operand becomes available after GEMM accumulation",
+      "requires_reduction": false,
+      "localization_status": "pending"
+    }
+  ],
+  "outputs": [
+    "Yi"
+  ],
+  "status": "analyzed",
+  "next_stage": "patch_localization"
+}

@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.atom.method.cp-async-commit-group",
+  "level": "atom",
+  "name": "Parameterized SM80 commit-group method",
+  "summary": "Use the SM80 commit-group asynchronous-copy strategy with a supported cache policy and access width.",
+  "primitives": [
+    "cp.async"
+  ],
+  "strategy": {
+    "intent": "Map GEMM arithmetic to architecture-native Tensor Core instructions.",
+    "mechanism": "Use the Ampere asynchronous-copy group protocol to order producer copies before shared-memory consumers or stage reuse.",
+    "expected_benefit": "Uses the GPU matrix-multiply datapath instead of scalar arithmetic.",
+    "tradeoffs": [
+      "Requires compatible fragment layouts, data types, alignment, and architecture support."
+    ]
+  },
+  "parameters": [],
+  "constraints": [
+    {
+      "type": "architecture",
+      "expression": "arch >= sm80",
+      "rationale": "The group protocol orders Ampere cp.async instructions."
+    },
+    {
+      "type": "semantic",
+      "expression": "commit_precedes_wait_and_shared_consumption",
+      "rationale": "Incorrect group ordering can expose incomplete shared-memory data."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/arch/memory_sm80.h",
+        "line_start": 441,
+        "line_end": 441,
+        "symbol": "cp_async_fence",
+        "evidence": "CUTLASS emits the cp.async group synchronization helper at this line."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "cp-async",
+    "pipeline",
+    "commit-group"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Automatically normalized from concrete CUTLASS wrapper candidates.",
+    "All concrete candidate IDs are retained in atom-method-membership.json.",
+    "Requires semantic review before promotion to curated."
+  ]
+}

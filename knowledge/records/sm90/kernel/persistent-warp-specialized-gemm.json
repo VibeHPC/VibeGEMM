@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90a.kernel.persistent-warp-specialized-gemm",
+  "level": "kernel",
+  "name": "Persistent warp-specialized SM90 GEMM kernel",
+  "summary": "Run a persistent Hopper GEMM kernel whose producer and consumer warps execute distinct mainloop roles and obtain output tiles from a hardware-aware scheduler.",
+  "primitives": [
+    "GemmUniversal",
+    "CollectiveMainloop",
+    "CollectiveEpilogue",
+    "TileScheduler"
+  ],
+  "strategy": {
+    "intent": "Reduce launch and scheduling overhead while maintaining an overlapped warp-specialized pipeline.",
+    "mechanism": "Initialize producer and consumer pipeline roles once, repeatedly acquire work tiles, execute the collective mainloop, and commit results through the collective epilogue.",
+    "expected_benefit": "Keeps Hopper SMs occupied across many output tiles and composes optimized mainloop and epilogue collectives.",
+    "tradeoffs": [
+      "Persistent scheduling is sensitive to workload shape and cluster configuration.",
+      "Incorrect role or pipeline initialization can deadlock the kernel."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "cluster_shape",
+      "kind": "shape",
+      "description": "Static thread-block cluster shape."
+    },
+    {
+      "name": "tile_scheduler",
+      "kind": "choice",
+      "description": "Policy that maps persistent CTAs to output work tiles."
+    },
+    {
+      "name": "mainloop_schedule",
+      "kind": "choice",
+      "description": "Warp-specialized mainloop dispatch policy."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "dependency",
+      "expression": "mainloop_and_epilogue_share_compatible_tile_shape",
+      "rationale": "The kernel composes both collectives through common problem and tile coordinates."
+    },
+    {
+      "type": "semantic",
+      "expression": "warp_roles match pipeline ThreadCategory",
+      "rationale": "Producer and consumer pipeline parameters are initialized separately."
+    },
+    {
+      "type": "architecture",
+      "expression": "arch in {sm90, sm90a}",
+      "rationale": "The kernel uses Hopper cluster and warp-specialization mechanisms."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/sm90_gemm_tma_warpspecialized.hpp",
+        "line_start": 65,
+        "line_end": 380,
+        "symbol": "GemmUniversal",
+        "evidence": "The kernel composes mainloop, epilogue, scheduler, shared pipeline storage, and distinct producer/consumer pipeline roles."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "persistent",
+    "warp-specialized",
+    "gemm-kernel",
+    "tile-scheduler"
+  ],
+  "status": "curated"
+}

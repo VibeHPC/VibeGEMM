@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.collective.bias-relu-fusion",
+  "level": "collective",
+  "name": "Fused bias and ReLU output",
+  "summary": "Add broadcast bias and apply ReLU while converting and storing GEMM output.",
+  "primitives": [
+    "class LinearCombinationBiasRelu"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Add broadcast bias and apply ReLU while converting and storing GEMM output.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "bias",
+      "kind": "choice",
+      "description": "Collective configuration parameter: bias."
+    },
+    {
+      "name": "threshold",
+      "kind": "choice",
+      "description": "Collective configuration parameter: threshold."
+    },
+    {
+      "name": "output_dtype",
+      "kind": "choice",
+      "description": "Collective configuration parameter: output_dtype."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "bias covers the output channel dimension",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/thread/linear_combination_bias_relu.h",
+        "line_start": 368,
+        "line_end": 368,
+        "symbol": "class LinearCombinationBiasRelu",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "epilogue",
+    "bias",
+    "relu",
+    "fusion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

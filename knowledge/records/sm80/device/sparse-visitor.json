@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.device.sparse-visitor",
+  "level": "device",
+  "name": "Sparse GEMM visitor interface",
+  "summary": "Expose sparse GEMM with callback-based epilogue fusion through a host-callable operator.",
+  "primitives": [
+    "class SparseGemmWithVisitor"
+  ],
+  "strategy": {
+    "intent": "Turn a composed GEMM kernel into a safe, reusable host-callable operation.",
+    "mechanism": "Expose sparse GEMM with callback-based epilogue fusion through a host-callable operator.",
+    "expected_benefit": "Provides uniform validation, resource management, launch, and workload-mode integration.",
+    "tradeoffs": [
+      "Device wrappers add host-side policy and workspace requirements that must remain consistent with the selected kernel."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "metadata",
+      "kind": "choice",
+      "description": "Device integration parameter: metadata."
+    },
+    {
+      "name": "visitor",
+      "kind": "choice",
+      "description": "Device integration parameter: visitor."
+    },
+    {
+      "name": "stream",
+      "kind": "choice",
+      "description": "Device integration parameter: stream."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "layout",
+      "expression": "metadata and compressed operand agree",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/device/gemm_sparse_with_visitor.h",
+        "line_start": 115,
+        "line_end": 115,
+        "symbol": "class SparseGemmWithVisitor",
+        "evidence": "The referenced CUTLASS device API implements this integration method."
+      }
+    ]
+  },
+  "tags": [
+    "device-api",
+    "sparse",
+    "visitor",
+    "fusion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

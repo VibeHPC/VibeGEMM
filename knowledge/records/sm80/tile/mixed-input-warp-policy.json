@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.tile.mixed-input-warp-policy",
+  "level": "tile",
+  "name": "SM80 mixed-input warp tile policy",
+  "summary": "Convert or transform mixed input fragments while mapping a warp tile onto compatible Tensor Core operations.",
+  "primitives": [
+    "class MmaMixedInputTensorOp"
+  ],
+  "strategy": {
+    "intent": "Construct a legal and performance-relevant GEMM tile mapping for the target architecture.",
+    "mechanism": "Pair operand fragment conversion with the warp MMA iteration structure.",
+    "expected_benefit": "Exposes data reuse and parallel Tensor Core work while respecting layout and resource limits.",
+    "tradeoffs": [
+      "Tile choices change shared-memory use, register pressure, occupancy, and available grid parallelism."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "warp_shape",
+      "kind": "shape",
+      "description": "Tunable or derived tile property: warp_shape."
+    },
+    {
+      "name": "input_types",
+      "kind": "choice",
+      "description": "Tunable or derived tile property: input_types."
+    },
+    {
+      "name": "transform",
+      "kind": "choice",
+      "description": "Tunable or derived tile property: transform."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "dtype",
+      "expression": "converted fragments match MMA operand types",
+      "rationale": "The instruction consumes fixed operand encodings."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/warp/mma_mixed_input_tensor_op.h",
+        "line_start": 349,
+        "line_end": 349,
+        "symbol": "class MmaMixedInputTensorOp",
+        "evidence": "The referenced CUTLASS builder/core expression implements this tile decision."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "mixed-input",
+    "warp-tile",
+    "conversion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted parameterized method; requires semantic review before promotion to curated."
+  ]
+}

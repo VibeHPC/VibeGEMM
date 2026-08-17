@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0.0",
+  "variants": [
+    {
+      "variant_id": "gemm_bias_gelu", "name": "GEMM + Bias + GELU", "supported_architectures": ["sm80", "sm90", "sm90a"],
+      "problem": {"dimensions": ["M", "N", "K"], "representative_shapes": [[4096, 16384, 4096], [8192, 11008, 4096]]},
+      "tensors": [{"name":"X","dtype":"fp16|bf16","layout":"row_major"},{"name":"W","dtype":"fp16|bf16","layout":"column_major"},{"name":"bias","dtype":"fp16|bf16|fp32","layout":"vector_N"},{"name":"acc","dtype":"fp32","layout":"tile"},{"name":"biased","dtype":"fp32","layout":"tile"},{"name":"Y","dtype":"fp16|bf16","layout":"row_major"}],
+      "operations": [{"id":"gemm","kind":"gemm","inputs":["X","W"],"outputs":["acc"],"expression":"acc = X @ W"},{"id":"bias_add","kind":"bias_add","inputs":["acc","bias"],"outputs":["biased"],"expression":"biased = acc + bias"},{"id":"gelu","kind":"gelu","inputs":["biased"],"outputs":["Y"],"expression":"Y = GELU(biased)"}],
+      "outputs": ["Y"], "reference": {"kind":"symbolic","description":"Y = GELU(X @ W + bias)"}
+    },
+    {
+      "variant_id": "gemm_rmsnorm", "name": "GEMM + RMSNorm", "supported_architectures": ["sm80", "sm90", "sm90a"],
+      "problem": {"dimensions": ["M", "N", "K"], "representative_shapes": [[4096,4096,4096],[8192,8192,8192]]},
+      "tensors": [{"name":"X","dtype":"fp16|bf16","layout":"row_major"},{"name":"W","dtype":"fp16|bf16","layout":"column_major"},{"name":"acc","dtype":"fp32","layout":"tile"},{"name":"mean_sq","dtype":"fp32","layout":"row_scalar"},{"name":"inv_rms","dtype":"fp32","layout":"row_scalar"},{"name":"Y","dtype":"fp16|bf16","layout":"row_major"}],
+      "operations": [{"id":"gemm","kind":"gemm","inputs":["X","W"],"outputs":["acc"],"expression":"acc = X @ W"},{"id":"mean_square","kind":"reduce_mean","inputs":["acc"],"outputs":["mean_sq"],"expression":"mean_sq = mean(acc^2, axis=N)"},{"id":"inverse_rms","kind":"rsqrt","inputs":["mean_sq"],"outputs":["inv_rms"],"expression":"inv_rms = rsqrt(mean_sq + epsilon)"},{"id":"normalize","kind":"scale","inputs":["acc","inv_rms"],"outputs":["Y"],"expression":"Y = acc * inv_rms"}],
+      "outputs": ["Y"], "reference": {"kind":"symbolic","description":"Y = RMSNorm(X @ W)"}
+    },
+    {
+      "variant_id": "dual_gemm_swiglu", "name": "Dual GEMM + SwiGLU", "supported_architectures": ["sm80", "sm90", "sm90a"],
+      "problem": {"dimensions": ["M", "N", "K"], "representative_shapes": [[128,28672,8192],[128,22016,8192]]},
+      "tensors": [{"name":"X","dtype":"fp16|bf16","layout":"row_major"},{"name":"Wg","dtype":"fp16|bf16","layout":"column_major"},{"name":"Wu","dtype":"fp16|bf16","layout":"column_major"},{"name":"gate","dtype":"fp32","layout":"tile"},{"name":"up","dtype":"fp32","layout":"tile"},{"name":"activated","dtype":"fp32","layout":"tile"},{"name":"Y","dtype":"fp16|bf16","layout":"row_major"}],
+      "operations": [{"id":"dual_gemm","kind":"dual_gemm","inputs":["X","Wg","Wu"],"outputs":["gate","up"],"expression":"gate, up = X @ Wg, X @ Wu"},{"id":"silu","kind":"silu","inputs":["gate"],"outputs":["activated"],"expression":"activated = SiLU(gate)"},{"id":"multiply","kind":"multiply","inputs":["activated","up"],"outputs":["Y"],"expression":"Y = activated * up"}],
+      "outputs": ["Y"], "reference": {"kind":"symbolic","description":"Y = SiLU(X @ Wg) * (X @ Wu)"}
+    },
+    {
+      "variant_id": "quantized_gemm", "name": "Quantized GEMM", "supported_architectures": ["sm80", "sm90", "sm90a"],
+      "problem": {"dimensions": ["M", "N", "K"], "representative_shapes": [[32,11008,4096],[64,4096,14336]]},
+      "tensors": [{"name":"Aq","dtype":"int4|fp8","layout":"packed_row"},{"name":"Bq","dtype":"int4|fp8","layout":"packed_column"},{"name":"sa","dtype":"fp16|fp32","layout":"scale"},{"name":"sb","dtype":"fp16|fp32","layout":"scale"},{"name":"A","dtype":"fp16|bf16","layout":"row_major"},{"name":"B","dtype":"fp16|bf16","layout":"column_major"},{"name":"acc","dtype":"fp32","layout":"tile"},{"name":"Y","dtype":"fp16|bf16","layout":"row_major"}],
+      "operations": [{"id":"dequant_a","kind":"dequantize","inputs":["Aq","sa"],"outputs":["A"],"expression":"A = dequantize(Aq, sa)"},{"id":"dequant_b","kind":"dequantize","inputs":["Bq","sb"],"outputs":["B"],"expression":"B = dequantize(Bq, sb)"},{"id":"gemm","kind":"gemm","inputs":["A","B"],"outputs":["acc"],"expression":"acc = A @ B"},{"id":"cast_output","kind":"cast","inputs":["acc"],"outputs":["Y"],"expression":"Y = cast(acc)"}],
+      "outputs": ["Y"], "reference": {"kind":"symbolic","description":"Y = (sa * Aq) @ (sb * Bq)"}
+    },
+    {
+      "variant_id": "gemm_rope", "name": "GEMM + Permute + RoPE", "supported_architectures": ["sm80", "sm90", "sm90a"],
+      "problem": {"dimensions": ["M", "N", "K"], "representative_shapes": [[2048,4096,4096],[8192,8192,8192]]},
+      "tensors": [{"name":"X","dtype":"fp16|bf16","layout":"row_major"},{"name":"W","dtype":"fp16|bf16","layout":"column_major"},{"name":"cos","dtype":"fp16|fp32","layout":"position_dimension"},{"name":"sin","dtype":"fp16|fp32","layout":"position_dimension"},{"name":"acc","dtype":"fp32","layout":"tile"},{"name":"permuted","dtype":"fp32","layout":"rope_pairs"},{"name":"Y","dtype":"fp16|bf16","layout":"rope_pairs"}],
+      "operations": [{"id":"gemm","kind":"gemm","inputs":["X","W"],"outputs":["acc"],"expression":"acc = X @ W"},{"id":"permute","kind":"permute","inputs":["acc"],"outputs":["permuted"],"expression":"permuted = pair_permute(acc)"},{"id":"rope","kind":"rope","inputs":["permuted","cos","sin"],"outputs":["Y"],"expression":"Y = RoPE(permuted, cos, sin)"}],
+      "outputs": ["Y"], "reference": {"kind":"symbolic","description":"Y = RoPE(Permute(X @ W))"}
+    },
+    {
+      "variant_id": "grouped_gemm_silu", "name": "Grouped GEMM + SiLU", "supported_architectures": ["sm80", "sm90", "sm90a"],
+      "problem": {"dimensions": ["groups", "Mi", "N", "K"], "representative_shapes": [[3,[128,512,64],4096,14336]]},
+      "tensors": [{"name":"Xi","dtype":"fp16|bf16","layout":"grouped_row"},{"name":"Wi","dtype":"fp16|bf16","layout":"grouped_column"},{"name":"acc_i","dtype":"fp32","layout":"grouped_tile"},{"name":"Yi","dtype":"fp16|bf16","layout":"grouped_row"}],
+      "operations": [{"id":"grouped_gemm","kind":"grouped_gemm","inputs":["Xi","Wi"],"outputs":["acc_i"],"expression":"acc_i = Xi @ Wi per group"},{"id":"silu","kind":"silu","inputs":["acc_i"],"outputs":["Yi"],"expression":"Yi = SiLU(acc_i)"}],
+      "outputs": ["Yi"], "reference": {"kind":"symbolic","description":"Yi = SiLU(Xi @ Wi)"}
+    }
+  ]
+}
+

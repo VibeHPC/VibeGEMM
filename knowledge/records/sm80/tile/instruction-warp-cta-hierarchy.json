@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.tile.instruction-warp-cta-hierarchy",
+  "level": "tile",
+  "name": "SM80 instruction, warp, and CTA tile hierarchy",
+  "summary": "Decompose an SM80 CTA GEMM tile into warp tiles and fixed MMA instruction tiles.",
+  "primitives": [
+    "DefaultMmaCore<"
+  ],
+  "strategy": {
+    "intent": "Construct a legal and performance-relevant GEMM tile mapping for the target architecture.",
+    "mechanism": "Use Shape, WarpShape, and InstructionShape template parameters to construct the threadblock MMA core.",
+    "expected_benefit": "Exposes data reuse and parallel Tensor Core work while respecting layout and resource limits.",
+    "tradeoffs": [
+      "Tile choices change shared-memory use, register pressure, occupancy, and available grid parallelism."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "threadblock_shape",
+      "kind": "shape",
+      "description": "Tunable or derived tile property: threadblock_shape."
+    },
+    {
+      "name": "warp_shape",
+      "kind": "shape",
+      "description": "Tunable or derived tile property: warp_shape."
+    },
+    {
+      "name": "instruction_shape",
+      "kind": "shape",
+      "description": "Tunable or derived tile property: instruction_shape."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "threadblock_shape % warp_shape == 0",
+      "rationale": "Warps must exactly partition the CTA M/N tile."
+    },
+    {
+      "type": "shape",
+      "expression": "warp_shape % instruction_shape == 0",
+      "rationale": "Tensor Core instructions must partition the warp tile."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/threadblock/default_mma_core_sm80.h",
+        "line_start": 103,
+        "line_end": 103,
+        "symbol": "DefaultMmaCore<",
+        "evidence": "The referenced CUTLASS builder/core expression implements this tile decision."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "tile-hierarchy",
+    "cta-tile",
+    "warp-tile",
+    "instruction-tile"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted parameterized method; requires semantic review before promotion to curated."
+  ]
+}

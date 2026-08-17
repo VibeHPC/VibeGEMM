@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.collective.direct-store-epilogue",
+  "level": "collective",
+  "name": "SM80 direct-store epilogue",
+  "summary": "Write accumulator fragments directly to global output when shared-memory exchange is unnecessary.",
+  "primitives": [
+    "class EpilogueDirectStore"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Write accumulator fragments directly to global output when shared-memory exchange is unnecessary.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "output_iterator",
+      "kind": "choice",
+      "description": "Collective configuration parameter: output_iterator."
+    },
+    {
+      "name": "elements_per_access",
+      "kind": "choice",
+      "description": "Collective configuration parameter: elements_per_access."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "layout",
+      "expression": "fragment mapping matches output layout",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/threadblock/epilogue_direct_store.h",
+        "line_start": 70,
+        "line_end": 70,
+        "symbol": "class EpilogueDirectStore",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "epilogue",
+    "direct-store"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

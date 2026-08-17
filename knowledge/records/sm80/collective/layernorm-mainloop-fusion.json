@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.collective.layernorm-mainloop-fusion",
+  "level": "collective",
+  "name": "SM80 layer-normalization mainloop fusion",
+  "summary": "Apply layer-normalization scale and bias while loading operands into a multistage GEMM mainloop.",
+  "primitives": [
+    "class MmaLayernormMainloopFusionMultistage"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Apply layer-normalization scale and bias while loading operands into a multistage GEMM mainloop.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "scale",
+      "kind": "choice",
+      "description": "Collective configuration parameter: scale."
+    },
+    {
+      "name": "bias",
+      "kind": "choice",
+      "description": "Collective configuration parameter: bias."
+    },
+    {
+      "name": "stages",
+      "kind": "integer",
+      "description": "Collective configuration parameter: stages."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "normalization vectors match operand rows",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/threadblock/mma_layernorm_mainloop_fusion_multistage.h",
+        "line_start": 298,
+        "line_end": 298,
+        "symbol": "class MmaLayernormMainloopFusionMultistage",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "mainloop",
+    "layernorm",
+    "fusion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

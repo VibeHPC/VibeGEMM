@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.collective.topk-softmax-visitor",
+  "level": "collective",
+  "name": "SM90 Top-K softmax visitor",
+  "summary": "Fuse column-wise Top-K selection and softmax reduction into the Hopper epilogue visitor tree.",
+  "primitives": [
+    "struct Sm90TopKSoftmaxColReduction"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Fuse column-wise Top-K selection and softmax reduction into the Hopper epilogue visitor tree.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "top_k",
+      "kind": "choice",
+      "description": "Collective configuration parameter: top_k."
+    },
+    {
+      "name": "fragment_size",
+      "kind": "choice",
+      "description": "Collective configuration parameter: fragment_size."
+    },
+    {
+      "name": "compute_dtype",
+      "kind": "choice",
+      "description": "Collective configuration parameter: compute_dtype."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "TopK fits the supported fragment reduction",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/fusion/sm90_visitor_topk_softmax.hpp",
+        "line_start": 335,
+        "line_end": 335,
+        "symbol": "struct Sm90TopKSoftmaxColReduction",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "epilogue",
+    "top-k",
+    "softmax",
+    "visitor"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

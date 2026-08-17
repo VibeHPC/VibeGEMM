@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.kernel.mainloop-epilogue-storage-overlay",
+  "level": "kernel",
+  "name": "Overlay mainloop and epilogue shared storage",
+  "summary": "Reuse the same dynamic shared-memory allocation for mainloop and epilogue phases whose lifetimes do not overlap.",
+  "primitives": [
+    "union SharedStorage"
+  ],
+  "strategy": {
+    "intent": "Compose validated GEMM collectives with a grid/work scheduler into a complete CUDA kernel.",
+    "mechanism": "Reuse the same dynamic shared-memory allocation for mainloop and epilogue phases whose lifetimes do not overlap.",
+    "expected_benefit": "Improves device utilization, overlap, locality, or workload coverage while preserving collective implementations.",
+    "tradeoffs": [
+      "Kernel schedules constrain tile shapes, resources, synchronization, and applicable problem regimes."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "mainloop_smem_bytes",
+      "kind": "integer",
+      "description": "Kernel configuration parameter: mainloop_smem_bytes."
+    },
+    {
+      "name": "epilogue_smem_bytes",
+      "kind": "integer",
+      "description": "Kernel configuration parameter: epilogue_smem_bytes."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "mainloop shared state is dead before epilogue reuse",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    },
+    {
+      "type": "resource",
+      "expression": "smem_bytes == max(mainloop, epilogue)",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/gemm_universal.h",
+        "line_start": 352,
+        "line_end": 352,
+        "symbol": "union SharedStorage",
+        "evidence": "The referenced CUTLASS kernel or scheduler implements this composition strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "shared-memory",
+    "lifetime-reuse",
+    "kernel-composition"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

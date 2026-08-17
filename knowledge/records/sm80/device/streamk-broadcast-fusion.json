@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.device.streamk-broadcast-fusion",
+  "level": "device",
+  "name": "Stream-K GEMM with broadcast",
+  "summary": "Expose Stream-K load balancing together with a fused broadcast epilogue through one device operation.",
+  "primitives": [
+    "class GemmUniversalStreamkWithBroadcast"
+  ],
+  "strategy": {
+    "intent": "Turn a composed GEMM kernel into a safe, reusable host-callable operation.",
+    "mechanism": "Expose Stream-K load balancing together with a fused broadcast epilogue through one device operation.",
+    "expected_benefit": "Provides uniform validation, resource management, launch, and workload-mode integration.",
+    "tradeoffs": [
+      "Device wrappers add host-side policy and workspace requirements that must remain consistent with the selected kernel."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "available_sms",
+      "kind": "choice",
+      "description": "Device integration parameter: available_sms."
+    },
+    {
+      "name": "broadcast",
+      "kind": "choice",
+      "description": "Device integration parameter: broadcast."
+    },
+    {
+      "name": "workspace",
+      "kind": "choice",
+      "description": "Device integration parameter: workspace."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "resource",
+      "expression": "Stream-K fixup workspace is allocated",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/device/gemm_universal_streamk_with_broadcast.h",
+        "line_start": 126,
+        "line_end": 126,
+        "symbol": "class GemmUniversalStreamkWithBroadcast",
+        "evidence": "The referenced CUTLASS device API implements this integration method."
+      }
+    ]
+  },
+  "tags": [
+    "device-api",
+    "stream-k",
+    "broadcast",
+    "fusion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

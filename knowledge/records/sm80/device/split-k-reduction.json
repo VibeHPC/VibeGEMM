@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.device.split-k-reduction",
+  "level": "device",
+  "name": "Parallel split-K device orchestration",
+  "summary": "Allocate partial-output workspace, launch independent K partitions, and reduce them into the final output tensor.",
+  "primitives": [
+    "class GemmSplitKParallel"
+  ],
+  "strategy": {
+    "intent": "Turn a composed GEMM kernel into a safe, reusable host-callable operation.",
+    "mechanism": "Allocate partial-output workspace, launch independent K partitions, and reduce them into the final output tensor.",
+    "expected_benefit": "Provides uniform validation, resource management, launch, and workload-mode integration.",
+    "tradeoffs": [
+      "Device wrappers add host-side policy and workspace requirements that must remain consistent with the selected kernel."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "split_k_slices",
+      "kind": "integer",
+      "description": "Device integration parameter: split_k_slices."
+    },
+    {
+      "name": "workspace",
+      "kind": "choice",
+      "description": "Device integration parameter: workspace."
+    },
+    {
+      "name": "stream",
+      "kind": "choice",
+      "description": "Device integration parameter: stream."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "resource",
+      "expression": "workspace stores all partial accumulators",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    },
+    {
+      "type": "semantic",
+      "expression": "reduction runs after partition kernels on the same dependency chain",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/device/gemm_splitk_parallel.h",
+        "line_start": 131,
+        "line_end": 131,
+        "symbol": "class GemmSplitKParallel",
+        "evidence": "The referenced CUTLASS device API implements this integration method."
+      }
+    ]
+  },
+  "tags": [
+    "device-api",
+    "split-k",
+    "reduction"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

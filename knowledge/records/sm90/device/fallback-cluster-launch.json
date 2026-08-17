@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.device.fallback-cluster-launch",
+  "level": "device",
+  "name": "Fallback cluster launch",
+  "summary": "Retry or select an alternative legal cluster shape when the preferred Hopper cluster configuration cannot launch.",
+  "primitives": [
+    "launch_with_fallback_cluster"
+  ],
+  "strategy": {
+    "intent": "Turn a composed GEMM kernel into a safe, reusable host-callable operation.",
+    "mechanism": "Retry or select an alternative legal cluster shape when the preferred Hopper cluster configuration cannot launch.",
+    "expected_benefit": "Provides uniform validation, resource management, launch, and workload-mode integration.",
+    "tradeoffs": [
+      "Device wrappers add host-side policy and workspace requirements that must remain consistent with the selected kernel."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "preferred_cluster",
+      "kind": "choice",
+      "description": "Device integration parameter: preferred_cluster."
+    },
+    {
+      "name": "fallback_cluster",
+      "kind": "choice",
+      "description": "Device integration parameter: fallback_cluster."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "fallback cluster remains compatible with kernel collectives",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/device/gemm_universal_adapter.h",
+        "line_start": 509,
+        "line_end": 509,
+        "symbol": "launch_with_fallback_cluster",
+        "evidence": "The referenced CUTLASS device API implements this integration method."
+      }
+    ]
+  },
+  "tags": [
+    "device-api",
+    "cluster",
+    "fallback",
+    "rollback"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

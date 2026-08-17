@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.kernel.static-persistent-scheduler",
+  "level": "kernel",
+  "name": "SM90 static persistent tile scheduler",
+  "summary": "Launch a bounded set of persistent CTAs and advance each through a linearized sequence of output tiles.",
+  "primitives": [
+    "PersistentTileSchedulerSm90"
+  ],
+  "strategy": {
+    "intent": "Compose validated GEMM collectives with a grid/work scheduler into a complete CUDA kernel.",
+    "mechanism": "Launch a bounded set of persistent CTAs and advance each through a linearized sequence of output tiles.",
+    "expected_benefit": "Improves device utilization, overlap, locality, or workload coverage while preserving collective implementations.",
+    "tradeoffs": [
+      "Kernel schedules constrain tile shapes, resources, synchronization, and applicable problem regimes."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "max_swizzle_size",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: max_swizzle_size."
+    },
+    {
+      "name": "raster_order",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: raster_order."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "cluster-aligned grid covers output tile domain",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/sm90_tile_scheduler.hpp",
+        "line_start": 40,
+        "line_end": 40,
+        "symbol": "PersistentTileSchedulerSm90",
+        "evidence": "The referenced CUTLASS kernel or scheduler implements this composition strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "persistent",
+    "tile-scheduler",
+    "static"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

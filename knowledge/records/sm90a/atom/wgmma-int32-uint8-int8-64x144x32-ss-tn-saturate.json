@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90a.atom.wgmma-int32-uint8-int8-64x144x32-ss-tn-saturate",
+  "level": "atom",
+  "name": "SM90a WGMMA 64x144x32 uint8/int8 to int32 SS",
+  "summary": "Issue a Hopper warpgroup 64x144x32 WGMMA with uint8/int8 operands in SS mode and int32 accumulators.",
+  "primitives": [
+    "wgmma.mma_async",
+    "MMA_64x144x32_S32U8S8_SS_TN_SATURATE"
+  ],
+  "strategy": {
+    "intent": "Map GEMM arithmetic to architecture-native Tensor Core instructions.",
+    "mechanism": "Use the CUTLASS GMMA wrapper collectively across a warpgroup; operand residency mode is SS.",
+    "expected_benefit": "Uses the GPU matrix-multiply datapath instead of scalar arithmetic.",
+    "tradeoffs": [
+      "Requires compatible fragment layouts, data types, alignment, and architecture support."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "operand_mode",
+      "kind": "choice",
+      "description": "A/B register or shared-memory residency encoded by the wrapper.",
+      "values": [
+        "SS"
+      ]
+    },
+    {
+      "name": "scale_d",
+      "kind": "choice",
+      "description": "Accumulator participation/scaling control.",
+      "values": [
+        0,
+        1
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "type": "architecture",
+      "expression": "arch == sm90a",
+      "rationale": "WGMMA wrappers require SM90a architecture features."
+    },
+    {
+      "type": "dtype",
+      "expression": "A == uint8 && B == int8 && accumulator == int32",
+      "rationale": "Types are encoded in the wrapper name."
+    },
+    {
+      "type": "shape",
+      "expression": "mma_shape == (64, 144, 32)",
+      "rationale": "The WGMMA instruction shape is fixed."
+    },
+    {
+      "type": "dependency",
+      "expression": "operand_mode == SS",
+      "rationale": "SS and RS wrappers require different operand descriptors/fragments."
+    },
+    {
+      "type": "semantic",
+      "expression": "sparse == false",
+      "rationale": "Sparse WGMMA variants require metadata and structured sparsity semantics."
+    }
+  ],
+  "architectures": [
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cute/arch/mma_sm90_gmma_ext.hpp",
+        "line_start": 22514,
+        "line_end": 22514,
+        "symbol": "MMA_64x144x32_S32U8S8_SS_TN_SATURATE",
+        "evidence": "CUTLASS declares this named GMMA wrapper at the referenced source line."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "wgmma",
+    "tensor-core",
+    "ss",
+    "uint8",
+    "int8",
+    "int32"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Automatically extracted; requires semantic review before promotion to curated."
+  ]
+}

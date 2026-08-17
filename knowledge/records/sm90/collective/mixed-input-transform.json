@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90a.collective.mixed-input-transform",
+  "level": "collective",
+  "name": "SM90 mixed-input transformation mainloop",
+  "summary": "Transform, scale, or convert mixed-type inputs between global-memory movement and WGMMA consumption without materializing a separate tensor.",
+  "primitives": [
+    "ElementScale"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Transform, scale, or convert mixed-type inputs between global-memory movement and WGMMA consumption without materializing a separate tensor.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "input_dtype",
+      "kind": "choice",
+      "description": "Collective configuration parameter: input_dtype."
+    },
+    {
+      "name": "mma_dtype",
+      "kind": "choice",
+      "description": "Collective configuration parameter: mma_dtype."
+    },
+    {
+      "name": "scale_mode",
+      "kind": "choice",
+      "description": "Collective configuration parameter: scale_mode."
+    },
+    {
+      "name": "zero_mode",
+      "kind": "choice",
+      "description": "Collective configuration parameter: zero_mode."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "dtype",
+      "expression": "input types are convertible to selected WGMMA operand types",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    },
+    {
+      "type": "resource",
+      "expression": "conversion_fragments_fit_register_budget",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/collective/sm90_mma_tma_gmma_rs_warpspecialized_mixed_input.hpp",
+        "line_start": 127,
+        "line_end": 127,
+        "symbol": "ElementScale",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "mixed-input",
+    "conversion",
+    "scaling",
+    "rs"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

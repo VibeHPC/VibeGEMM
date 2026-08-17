@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.collective.delayed-tma-store",
+  "level": "collective",
+  "name": "Delay TMA stores for instruction interleaving",
+  "summary": "Delay each epilogue TMA store until later in the next subtile iteration to improve interleaving with non-TMA instructions.",
+  "primitives": [
+    "DelayTmaStore"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Delay each epilogue TMA store until later in the next subtile iteration to improve interleaving with non-TMA instructions.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "delay_tma_store",
+      "kind": "choice",
+      "description": "Collective configuration parameter: delay_tma_store."
+    },
+    {
+      "name": "stages_c",
+      "kind": "integer",
+      "description": "Collective configuration parameter: stages_c."
+    },
+    {
+      "name": "stages_d",
+      "kind": "integer",
+      "description": "Collective configuration parameter: stages_d."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "not (delay && reuse_smem_c && stages_c <= stages_d)",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    },
+    {
+      "type": "dependency",
+      "expression": "previous store commits before next shared buffer overwrite",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/collective/sm90_epilogue_tma_warpspecialized.hpp",
+        "line_start": 66,
+        "line_end": 66,
+        "symbol": "DelayTmaStore",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "epilogue",
+    "tma-store",
+    "instruction-interleaving"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

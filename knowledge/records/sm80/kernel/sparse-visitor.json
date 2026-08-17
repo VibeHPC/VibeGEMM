@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.kernel.sparse-visitor",
+  "level": "kernel",
+  "name": "Sparse GEMM visitor kernel",
+  "summary": "Compose structured-sparse MMA and metadata handling with a callback-driven epilogue.",
+  "primitives": [
+    "struct SparseGemmWithEpilogueVisitor"
+  ],
+  "strategy": {
+    "intent": "Compose validated GEMM collectives with a grid/work scheduler into a complete CUDA kernel.",
+    "mechanism": "Compose structured-sparse MMA and metadata handling with a callback-driven epilogue.",
+    "expected_benefit": "Improves device utilization, overlap, locality, or workload coverage while preserving collective implementations.",
+    "tradeoffs": [
+      "Kernel schedules constrain tile shapes, resources, synchronization, and applicable problem regimes."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "metadata",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: metadata."
+    },
+    {
+      "name": "visitor",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: visitor."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "dependency",
+      "expression": "visitor matches sparse kernel epilogue protocol",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/sparse_gemm_with_visitor.h",
+        "line_start": 57,
+        "line_end": 57,
+        "symbol": "struct SparseGemmWithEpilogueVisitor",
+        "evidence": "The referenced CUTLASS kernel or scheduler implements this composition strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "sparse",
+    "visitor",
+    "fusion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

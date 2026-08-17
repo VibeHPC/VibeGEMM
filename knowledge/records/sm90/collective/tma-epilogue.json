@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.collective.tma-epilogue",
+  "level": "collective",
+  "name": "SM90 warp-specialized TMA epilogue",
+  "summary": "Move accumulator subtiles through shared memory, execute fusion callbacks, and commit output tiles with pipelined TMA stores.",
+  "primitives": [
+    "CollectiveEpilogue"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Move accumulator subtiles through shared memory, execute fusion callbacks, and commit output tiles with pipelined TMA stores.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "epilogue_tile",
+      "kind": "choice",
+      "description": "Collective configuration parameter: epilogue_tile."
+    },
+    {
+      "name": "stages_c",
+      "kind": "integer",
+      "description": "Collective configuration parameter: stages_c."
+    },
+    {
+      "name": "stages_d",
+      "kind": "integer",
+      "description": "Collective configuration parameter: stages_d."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "layout",
+      "expression": "output alignment satisfies TMA",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    },
+    {
+      "type": "resource",
+      "expression": "epilogue shared storage fits carveout",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/collective/sm90_epilogue_tma_warpspecialized.hpp",
+        "line_start": 83,
+        "line_end": 83,
+        "symbol": "CollectiveEpilogue",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "epilogue",
+    "tma-store",
+    "warp-specialized"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

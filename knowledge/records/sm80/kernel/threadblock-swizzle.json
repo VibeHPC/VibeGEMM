@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.kernel.threadblock-swizzle",
+  "level": "kernel",
+  "name": "SM80 threadblock tile swizzle",
+  "summary": "Map linear CUDA block indices to GEMM M/N/K tiles through a configurable threadblock swizzle.",
+  "primitives": [
+    "ThreadblockSwizzle"
+  ],
+  "strategy": {
+    "intent": "Compose validated GEMM collectives with a grid/work scheduler into a complete CUDA kernel.",
+    "mechanism": "Map linear CUDA block indices to GEMM M/N/K tiles through a configurable threadblock swizzle.",
+    "expected_benefit": "Improves device utilization, overlap, locality, or workload coverage while preserving collective implementations.",
+    "tradeoffs": [
+      "Kernel schedules constrain tile shapes, resources, synchronization, and applicable problem regimes."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "swizzle",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: swizzle."
+    },
+    {
+      "name": "grid_tiled_shape",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: grid_tiled_shape."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "swizzle covers every output tile exactly as required by mode",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/gemm_universal.h",
+        "line_start": 63,
+        "line_end": 63,
+        "symbol": "ThreadblockSwizzle",
+        "evidence": "The referenced CUTLASS kernel or scheduler implements this composition strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "swizzle",
+    "grid-mapping"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0.0",
+  "integration_id": "patch-integration:9e6d90c7ad33ea28",
+  "architecture": "sm80",
+  "variant_id": "gemm_rope",
+  "mode": "placeholder_integration",
+  "real_llm_called": false,
+  "real_cuda_integration_performed": false,
+  "source": {
+    "localization_path": "variant_patch/patch_localization/results/sm80/gemm_rope.json",
+    "localization_sha256": "51bd820bd1edd00417cf7d9147b3cbeab262ba18dab363f35f906e19fa142d36",
+    "original_backbone_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-4cc69f56b5239d6a/step-0002-attempt-0.cu",
+    "original_backbone_sha256": "a1a44f7ecafa0d154e9c98c4dfbda99e2e2c05d58703fba8761258dee89796a4"
+  },
+  "transaction": {
+    "atomic": true,
+    "partial_outputs_committed": false,
+    "steps": [
+      {
+        "index": 0,
+        "localization_id": "localization:de3265584f27ca06",
+        "provider": "placeholder-integration-llm-v1",
+        "placeholder": true,
+        "prompt": {
+          "task": "generate_and_integrate_one_localized_cuda_patch",
+          "architecture": "sm80",
+          "variant_id": "gemm_rope",
+          "latest_candidate_sha256": "a1a44f7ecafa0d154e9c98c4dfbda99e2e2c05d58703fba8761258dee89796a4",
+          "original_backbone": {
+            "path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-4cc69f56b5239d6a/step-0002-attempt-0.cu",
+            "sha256": "a1a44f7ecafa0d154e9c98c4dfbda99e2e2c05d58703fba8761258dee89796a4",
+            "is_placeholder": true
+          },
+          "target_region": "epilogue",
+          "candidate_insertion_points": [
+            "after_final_accumulator_before_output_conversion",
+            "before_global_store"
+          ],
+          "computation": "permuted = pair_permute(acc) -> Y = RoPE(permuted, cos, sin)",
+          "required_live_values": [
+            "acc",
+            "cos",
+            "sin"
+          ],
+          "produced_values": [
+            "Y"
+          ],
+          "tensor_requirements": [
+            {
+              "name": "acc",
+              "dtype": "fp32",
+              "layout": "tile"
+            },
+            {
+              "name": "cos",
+              "dtype": "fp16|fp32",
+              "layout": "position_dimension"
+            },
+            {
+              "name": "sin",
+              "dtype": "fp16|fp32",
+              "layout": "position_dimension"
+            },
+            {
+              "name": "Y",
+              "dtype": "fp16|bf16",
+              "layout": "rope_pairs"
+            }
+          ],
+          "backbone_invariants": [
+            "preserve GEMM tensor-core instruction family",
+            "preserve tile shapes and thread/warp mapping",
+            "preserve mainloop pipeline and synchronization unless required by the patch",
+            "preserve existing shared-memory and register lifetimes",
+            "modify only the selected localized region"
+          ],
+          "requirements": [
+            "modify only the localized region",
+            "preserve all unrelated backbone source",
+            "return the complete integrated CUDA source",
+            "preserve variant numerical semantics"
+          ]
+        },
+        "input_source_sha256": "a1a44f7ecafa0d154e9c98c4dfbda99e2e2c05d58703fba8761258dee89796a4",
+        "output_source_sha256": "7a3f13273ff3b422721078a9ba0b175a237fe4a9aca8eb484d4c71af84339f78",
+        "status": "placeholder_transform_applied"
+      }
+    ],
+    "candidate_path": "variant_patch/patch_integration/artifacts/sm80/gemm_rope/kernel.variant.placeholder.cu",
+    "candidate_sha256": "7a3f13273ff3b422721078a9ba0b175a237fe4a9aca8eb484d4c71af84339f78",
+    "status": "placeholder_candidate_committed"
+  },
+  "rollback": {
+    "action": "discard_candidate_and_restore_original_backbone",
+    "target_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-4cc69f56b5239d6a/step-0002-attempt-0.cu",
+    "target_sha256": "a1a44f7ecafa0d154e9c98c4dfbda99e2e2c05d58703fba8761258dee89796a4"
+  },
+  "ready_for_real_validation": false,
+  "status": "integration_placeholder_created",
+  "next_stage": "replace_placeholder_or_final_validation"
+}

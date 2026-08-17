@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90a.tile.cta-tile-shape",
+  "level": "tile",
+  "name": "CTA tile shape for SM90 TMA-WGMMA mainloops",
+  "summary": "Choose an M-by-N-by-K CTA tile that is statically known and divisible by the selected tiled MMA and TMA copy partitions.",
+  "primitives": [
+    "cute::TileShape",
+    "cute::TiledMma",
+    "cute::TiledCopy"
+  ],
+  "strategy": {
+    "intent": "Expose sufficient reuse and parallel Tensor Core work within each Hopper thread block.",
+    "mechanism": "Partition a CTA tile into WGMMA atoms and TMA copy tiles while enforcing compile-time shape compatibility.",
+    "expected_benefit": "Balances data reuse, Tensor Core utilization, shared-memory use, and grid parallelism.",
+    "tradeoffs": [
+      "Larger tiles consume more shared memory and registers.",
+      "A shape that is good for large GEMMs may reduce parallelism on small problems."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "tile_m",
+      "kind": "integer",
+      "description": "CTA output extent along M."
+    },
+    {
+      "name": "tile_n",
+      "kind": "integer",
+      "description": "CTA output extent along N."
+    },
+    {
+      "name": "tile_k",
+      "kind": "integer",
+      "description": "Mainloop reduction extent per stage."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "architecture",
+      "expression": "arch in {sm90, sm90a}",
+      "rationale": "The collective is specialized for Hopper mainloops."
+    },
+    {
+      "type": "shape",
+      "expression": "TileShape is static",
+      "rationale": "The implementation applies compile-time rank and divisibility checks."
+    },
+    {
+      "type": "shape",
+      "expression": "tile_m % mma_m == 0 && tile_n % mma_n == 0 && tile_k % mma_k == 0",
+      "rationale": "The tiled MMA must exactly partition the CTA tile."
+    },
+    {
+      "type": "resource",
+      "expression": "stages * smem_per_stage <= available_smem",
+      "rationale": "Tile size and pipeline depth jointly determine shared-memory use."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/collective/sm90_mma_tma_gmma_ss_warpspecialized.hpp",
+        "line_start": 72,
+        "line_end": 130,
+        "symbol": "CollectiveMma",
+        "evidence": "The specialization binds TileShape, TiledMma, and TMA copies and checks their ranks and compatible partitions."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "cta-tile",
+    "tiling",
+    "wgmma",
+    "tma"
+  ],
+  "status": "curated"
+}

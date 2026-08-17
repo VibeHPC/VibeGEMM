@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.collective.stage-count-carveout",
+  "level": "collective",
+  "name": "Automatic stage count with epilogue carveout",
+  "summary": "Maximize mainloop stages after reserving dynamic shared memory required by the selected epilogue.",
+  "primitives": [
+    "struct StageCountAutoCarveout"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Maximize mainloop stages after reserving dynamic shared memory required by the selected epilogue.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "carveout_bytes",
+      "kind": "choice",
+      "description": "Collective configuration parameter: carveout_bytes."
+    },
+    {
+      "name": "bytes_per_stage",
+      "kind": "choice",
+      "description": "Collective configuration parameter: bytes_per_stage."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "resource",
+      "expression": "carveout plus mainloop stages fits shared memory",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/collective/collective_builder_decl.hpp",
+        "line_start": 50,
+        "line_end": 50,
+        "symbol": "struct StageCountAutoCarveout",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "stages",
+    "shared-memory",
+    "carveout"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90a.collective.fp8-fast-accum",
+  "level": "collective",
+  "name": "FP8 fast-accumulation dispatch",
+  "summary": "Select FP8 WGMMA accumulation behavior optimized for throughput with an explicit numerical tradeoff.",
+  "primitives": [
+    "struct KernelTmaWarpSpecializedFP8FastAccum"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Select FP8 WGMMA accumulation behavior optimized for throughput with an explicit numerical tradeoff.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "fp8_types",
+      "kind": "choice",
+      "description": "Collective configuration parameter: fp8_types."
+    },
+    {
+      "name": "accumulation_mode",
+      "kind": "choice",
+      "description": "Collective configuration parameter: accumulation_mode."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "dtype",
+      "expression": "selected WGMMA atom supports FP8 fast accumulation",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/dispatch_policy.hpp",
+        "line_start": 153,
+        "line_end": 153,
+        "symbol": "struct KernelTmaWarpSpecializedFP8FastAccum",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "fp8",
+    "fast-accum",
+    "schedule"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.kernel.split-k-parallel",
+  "level": "kernel",
+  "name": "SM80 parallel split-K kernel",
+  "summary": "Partition the K dimension across CTAs and combine partial accumulators through a reduction-compatible output path.",
+  "primitives": [
+    "kGemmSplitKParallel"
+  ],
+  "strategy": {
+    "intent": "Compose validated GEMM collectives with a grid/work scheduler into a complete CUDA kernel.",
+    "mechanism": "Partition the K dimension across CTAs and combine partial accumulators through a reduction-compatible output path.",
+    "expected_benefit": "Improves device utilization, overlap, locality, or workload coverage while preserving collective implementations.",
+    "tradeoffs": [
+      "Kernel schedules constrain tile shapes, resources, synchronization, and applicable problem regimes."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "split_k_slices",
+      "kind": "integer",
+      "description": "Kernel configuration parameter: split_k_slices."
+    },
+    {
+      "name": "split_k_alignment",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: split_k_alignment."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "K partitions satisfy kSplitKAlignment",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    },
+    {
+      "type": "semantic",
+      "expression": "partial outputs are reduced exactly once",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/gemm_universal.h",
+        "line_start": 496,
+        "line_end": 496,
+        "symbol": "kGemmSplitKParallel",
+        "evidence": "The referenced CUTLASS kernel or scheduler implements this composition strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "split-k",
+    "parallel-reduction"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

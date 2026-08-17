@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.collective.array-cp-async-mainloop",
+  "level": "collective",
+  "name": "SM80 array GEMM cp.async mainloop",
+  "summary": "Apply the SM80 multistage mainloop to arrays of A/B tensor pointers while retaining asynchronous staging.",
+  "primitives": [
+    "MainloopSm80ArrayCpAsync"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Apply the SM80 multistage mainloop to arrays of A/B tensor pointers while retaining asynchronous staging.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "array_count",
+      "kind": "integer",
+      "description": "Collective configuration parameter: array_count."
+    },
+    {
+      "name": "stages",
+      "kind": "integer",
+      "description": "Collective configuration parameter: stages."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "pointer_arrays_address_valid_operand_tiles",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    },
+    {
+      "type": "resource",
+      "expression": "stages >= 2",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/collective/sm80_mma_array_multistage.hpp",
+        "line_start": 68,
+        "line_end": 68,
+        "symbol": "MainloopSm80ArrayCpAsync",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "array-gemm",
+    "cp-async",
+    "mainloop"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

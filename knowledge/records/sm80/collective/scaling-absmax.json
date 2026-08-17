@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.collective.scaling-absmax",
+  "level": "collective",
+  "name": "Scaled output with AbsMax",
+  "summary": "Scale and convert output fragments while producing absolute-maximum statistics for quantization.",
+  "primitives": [
+    "class LinearCombinationGenericWithScalingAndAbsMax"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Scale and convert output fragments while producing absolute-maximum statistics for quantization.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "scale",
+      "kind": "choice",
+      "description": "Collective configuration parameter: scale."
+    },
+    {
+      "name": "output_dtype",
+      "kind": "choice",
+      "description": "Collective configuration parameter: output_dtype."
+    },
+    {
+      "name": "absmax",
+      "kind": "choice",
+      "description": "Collective configuration parameter: absmax."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "absmax reduction observes all converted values",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/thread/linear_combination_generic_with_scaling.h",
+        "line_start": 74,
+        "line_end": 74,
+        "symbol": "class LinearCombinationGenericWithScalingAndAbsMax",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "epilogue",
+    "scaling",
+    "absmax",
+    "quantization"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

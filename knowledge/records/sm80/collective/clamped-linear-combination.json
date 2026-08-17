@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.collective.clamped-linear-combination",
+  "level": "collective",
+  "name": "Clamped linear-combination output",
+  "summary": "Apply a linear combination and clamp converted values to the representable output range.",
+  "primitives": [
+    "class LinearCombinationClamp"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Apply a linear combination and clamp converted values to the representable output range.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "alpha",
+      "kind": "choice",
+      "description": "Collective configuration parameter: alpha."
+    },
+    {
+      "name": "beta",
+      "kind": "choice",
+      "description": "Collective configuration parameter: beta."
+    },
+    {
+      "name": "output_dtype",
+      "kind": "choice",
+      "description": "Collective configuration parameter: output_dtype."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "dtype",
+      "expression": "clamp bounds match output type",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/thread/linear_combination_clamp.h",
+        "line_start": 79,
+        "line_end": 79,
+        "symbol": "class LinearCombinationClamp",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "epilogue",
+    "linear-combination",
+    "clamp",
+    "quantization"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

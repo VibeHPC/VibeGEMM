@@ -1,0 +1,76 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.collective.residual-block-fusion",
+  "level": "collective",
+  "name": "Fused residual-block output",
+  "summary": "Combine accumulator, source, residual contribution, and activation as a residual-block epilogue.",
+  "primitives": [
+    "class LinearCombinationResidualBlock"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Combine accumulator, source, residual contribution, and activation as a residual-block epilogue.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "alpha",
+      "kind": "choice",
+      "description": "Collective configuration parameter: alpha."
+    },
+    {
+      "name": "beta",
+      "kind": "choice",
+      "description": "Collective configuration parameter: beta."
+    },
+    {
+      "name": "residual_scale",
+      "kind": "choice",
+      "description": "Collective configuration parameter: residual_scale."
+    },
+    {
+      "name": "activation",
+      "kind": "choice",
+      "description": "Collective configuration parameter: activation."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "residual tensor matches output domain",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/thread/linear_combination_residual_block.h",
+        "line_start": 58,
+        "line_end": 58,
+        "symbol": "class LinearCombinationResidualBlock",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "epilogue",
+    "residual",
+    "activation",
+    "fusion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.collective.residue-predication",
+  "level": "collective",
+  "name": "SM80 mainloop residue predication",
+  "summary": "Predicate or zero-fill asynchronous copies at M/N/K boundaries while preserving a full-tile Tensor Core mainloop.",
+  "primitives": [
+    "residue_mnk"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Predicate or zero-fill asynchronous copies at M/N/K boundaries while preserving a full-tile Tensor Core mainloop.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "residue_mnk",
+      "kind": "choice",
+      "description": "Collective configuration parameter: residue_mnk."
+    },
+    {
+      "name": "clear_option",
+      "kind": "choice",
+      "description": "Collective configuration parameter: clear_option."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "out_of_bounds_values_do_not_contribute",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    },
+    {
+      "type": "dependency",
+      "expression": "copy Atom supports predication or zfill",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/collective/sm80_mma_multistage.hpp",
+        "line_start": 169,
+        "line_end": 169,
+        "symbol": "residue_mnk",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "predication",
+    "residue",
+    "boundary"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

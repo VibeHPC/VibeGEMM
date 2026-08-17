@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.collective.per-channel-scaling",
+  "level": "collective",
+  "name": "Per-channel scaling and bias",
+  "summary": "Apply channel-specific scale and bias followed by an elementwise transform during output conversion.",
+  "primitives": [
+    "class LinearCombinationPerChannelScalingBiasElementwise"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Apply channel-specific scale and bias followed by an elementwise transform during output conversion.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "channel_scale",
+      "kind": "choice",
+      "description": "Collective configuration parameter: channel_scale."
+    },
+    {
+      "name": "bias",
+      "kind": "choice",
+      "description": "Collective configuration parameter: bias."
+    },
+    {
+      "name": "elementwise_op",
+      "kind": "choice",
+      "description": "Collective configuration parameter: elementwise_op."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "scale and bias cover the channel dimension",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/thread/linear_combination_bias_elementwise.h",
+        "line_start": 518,
+        "line_end": 518,
+        "symbol": "class LinearCombinationPerChannelScalingBiasElementwise",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "epilogue",
+    "per-channel",
+    "scaling",
+    "bias"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

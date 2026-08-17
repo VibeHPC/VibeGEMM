@@ -1,0 +1,76 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.tile.output-thread-map",
+  "level": "tile",
+  "name": "Output tile thread map",
+  "summary": "Assign output tile coordinates and vector lanes to participating threads for coalesced epilogue stores.",
+  "primitives": [
+    "struct OutputTileThreadMap :"
+  ],
+  "strategy": {
+    "intent": "Construct a legal and performance-relevant GEMM tile mapping for the target architecture.",
+    "mechanism": "Derive per-thread iteration counts, deltas, and initial offsets from output shape and access width.",
+    "expected_benefit": "Exposes data reuse and parallel Tensor Core work while respecting layout and resource limits.",
+    "tradeoffs": [
+      "Tile choices change shared-memory use, register pressure, occupancy, and available grid parallelism."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "output_tile",
+      "kind": "shape",
+      "description": "Tunable or derived tile property: output_tile."
+    },
+    {
+      "name": "threads",
+      "kind": "integer",
+      "description": "Tunable or derived tile property: threads."
+    },
+    {
+      "name": "elements_per_access",
+      "kind": "integer",
+      "description": "Tunable or derived tile property: elements_per_access."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "thread map covers output tile",
+      "rationale": "Every output element must have an owner."
+    },
+    {
+      "type": "layout",
+      "expression": "vector access is aligned",
+      "rationale": "Coalesced vector stores require alignment."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/threadblock/output_tile_thread_map.h",
+        "line_start": 134,
+        "line_end": 134,
+        "symbol": "struct OutputTileThreadMap :",
+        "evidence": "The referenced CUTLASS builder/core expression implements this tile decision."
+      }
+    ]
+  },
+  "tags": [
+    "epilogue",
+    "output-tile",
+    "thread-map",
+    "coalescing"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted parameterized method; requires semantic review before promotion to curated."
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.kernel.stream-k-scheduler",
+  "level": "kernel",
+  "name": "SM90 persistent Stream-K scheduler",
+  "summary": "Assign ranges of K iterations to persistent CTAs and perform workspace/barrier fixup when multiple peers contribute to one output tile.",
+  "primitives": [
+    "PersistentTileSchedulerSm90StreamK"
+  ],
+  "strategy": {
+    "intent": "Compose validated GEMM collectives with a grid/work scheduler into a complete CUDA kernel.",
+    "mechanism": "Assign ranges of K iterations to persistent CTAs and perform workspace/barrier fixup when multiple peers contribute to one output tile.",
+    "expected_benefit": "Improves device utilization, overlap, locality, or workload coverage while preserving collective implementations.",
+    "tradeoffs": [
+      "Kernel schedules constrain tile shapes, resources, synchronization, and applicable problem regimes."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "splits",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: splits."
+    },
+    {
+      "name": "decomposition_mode",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: decomposition_mode."
+    },
+    {
+      "name": "raster_order",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: raster_order."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "resource",
+      "expression": "fixup workspace and barriers are allocated",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    },
+    {
+      "type": "semantic",
+      "expression": "only final peer executes epilogue after reduction",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/sm90_tile_scheduler_stream_k.hpp",
+        "line_start": 49,
+        "line_end": 49,
+        "symbol": "PersistentTileSchedulerSm90StreamK",
+        "evidence": "The referenced CUTLASS kernel or scheduler implements this composition strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "stream-k",
+    "persistent",
+    "fixup"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

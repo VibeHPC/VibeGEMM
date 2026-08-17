@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vibegemm.dev/variant-analysis-1.0.0.json",
+  "type": "object",
+  "required": ["schema_version", "analysis_id", "variant_id", "name", "supported_architectures", "problem", "reference", "backbone_operations", "variant_operations", "data_dependencies", "patch_groups", "outputs", "status", "next_stage"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "analysis_id": {"type": "string"},
+    "variant_id": {"type": "string"},
+    "name": {"type": "string"},
+    "supported_architectures": {"type": "array", "items": {"enum": ["sm80", "sm90", "sm90a"]}, "uniqueItems": true},
+    "problem": {"type": "object"},
+    "reference": {"type": "object"},
+    "backbone_operations": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "variant_operations": {"type": "array", "items": {"type": "object"}},
+    "data_dependencies": {"type": "array", "items": {"type": "object"}},
+    "patch_groups": {"type": "array", "items": {"type": "object", "required": ["group_id", "operation_ids", "computation", "inputs", "outputs", "tensor_requirements", "availability_stage", "stage_rationale", "requires_reduction", "localization_status"]}},
+    "outputs": {"type": "array", "items": {"type": "string"}},
+    "status": {"const": "analyzed"},
+    "next_stage": {"const": "patch_localization"}
+  },
+  "additionalProperties": false
+}
+

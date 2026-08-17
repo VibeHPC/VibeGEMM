@@ -1,0 +1,76 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.collective.bias-elementwise-epilogue",
+  "level": "collective",
+  "name": "SM90 fused bias and elementwise epilogue",
+  "summary": "Apply bias and an elementwise thread operation before writing the GEMM output, avoiding a separate kernel and intermediate tensor.",
+  "primitives": [
+    "ThreadEpilogueOp"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Apply bias and an elementwise thread operation before writing the GEMM output, avoiding a separate kernel and intermediate tensor.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "bias_broadcast",
+      "kind": "choice",
+      "description": "Collective configuration parameter: bias_broadcast."
+    },
+    {
+      "name": "elementwise_op",
+      "kind": "choice",
+      "description": "Collective configuration parameter: elementwise_op."
+    },
+    {
+      "name": "compute_dtype",
+      "kind": "choice",
+      "description": "Collective configuration parameter: compute_dtype."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "layout",
+      "expression": "bias broadcast dimension matches output tile",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    },
+    {
+      "type": "semantic",
+      "expression": "elementwise operation preserves requested output semantics",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/collective/sm90_epilogue_tma_warpspecialized_bias_elementwise.hpp",
+        "line_start": 109,
+        "line_end": 109,
+        "symbol": "ThreadEpilogueOp",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "epilogue",
+    "bias",
+    "elementwise",
+    "fusion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

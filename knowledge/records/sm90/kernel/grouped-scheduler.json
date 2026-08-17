@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.kernel.grouped-scheduler",
+  "level": "kernel",
+  "name": "SM90 persistent grouped GEMM scheduler",
+  "summary": "Dynamically map persistent CTAs across heterogeneous grouped GEMM problems and return problem-specific tile information.",
+  "primitives": [
+    "PersistentTileSchedulerSm90Group"
+  ],
+  "strategy": {
+    "intent": "Compose validated GEMM collectives with a grid/work scheduler into a complete CUDA kernel.",
+    "mechanism": "Dynamically map persistent CTAs across heterogeneous grouped GEMM problems and return problem-specific tile information.",
+    "expected_benefit": "Improves device utilization, overlap, locality, or workload coverage while preserving collective implementations.",
+    "tradeoffs": [
+      "Kernel schedules constrain tile shapes, resources, synchronization, and applicable problem regimes."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "problem_count",
+      "kind": "integer",
+      "description": "Kernel configuration parameter: problem_count."
+    },
+    {
+      "name": "group_schedule_mode",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: group_schedule_mode."
+    },
+    {
+      "name": "scheduler_pipeline_stages",
+      "kind": "integer",
+      "description": "Kernel configuration parameter: scheduler_pipeline_stages."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "work tile carries correct problem index and shape",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    },
+    {
+      "type": "resource",
+      "expression": "group metadata workspace is initialized",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/sm90_tile_scheduler_group.hpp",
+        "line_start": 47,
+        "line_end": 47,
+        "symbol": "PersistentTileSchedulerSm90Group",
+        "evidence": "The referenced CUTLASS kernel or scheduler implements this composition strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "grouped-gemm",
+    "persistent",
+    "dynamic-scheduling"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

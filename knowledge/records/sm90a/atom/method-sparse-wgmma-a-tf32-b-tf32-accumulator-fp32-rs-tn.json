@@ -1,0 +1,340 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90a.atom.method.sparse-wgmma-a-tf32-b-tf32-accumulator-fp32-rs-tn",
+  "level": "atom",
+  "name": "Parameterized SM90a sparse WGMMA RS method",
+  "summary": "Use the SM90a sparse WGMMA family for A == tf32 && B == tf32 && accumulator == fp32 in RS operand mode, selecting a supported instruction shape.",
+  "primitives": [
+    "wgmma.mma_async"
+  ],
+  "strategy": {
+    "intent": "Map GEMM arithmetic to architecture-native Tensor Core instructions.",
+    "mechanism": "Use the CUTLASS GMMA wrapper collectively across a warpgroup; operand residency mode is RS.",
+    "expected_benefit": "Uses the GPU matrix-multiply datapath instead of scalar arithmetic.",
+    "tradeoffs": [
+      "Requires compatible fragment layouts, data types, alignment, and architecture support."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "mma_shape",
+      "kind": "shape",
+      "description": "Supported WGMMA instruction shapes.",
+      "values": [
+        [
+          64,
+          8,
+          16
+        ],
+        [
+          64,
+          16,
+          16
+        ],
+        [
+          64,
+          24,
+          16
+        ],
+        [
+          64,
+          32,
+          16
+        ],
+        [
+          64,
+          40,
+          16
+        ],
+        [
+          64,
+          48,
+          16
+        ],
+        [
+          64,
+          56,
+          16
+        ],
+        [
+          64,
+          64,
+          16
+        ],
+        [
+          64,
+          72,
+          16
+        ],
+        [
+          64,
+          80,
+          16
+        ],
+        [
+          64,
+          88,
+          16
+        ],
+        [
+          64,
+          96,
+          16
+        ],
+        [
+          64,
+          104,
+          16
+        ],
+        [
+          64,
+          112,
+          16
+        ],
+        [
+          64,
+          120,
+          16
+        ],
+        [
+          64,
+          128,
+          16
+        ],
+        [
+          64,
+          136,
+          16
+        ],
+        [
+          64,
+          144,
+          16
+        ],
+        [
+          64,
+          152,
+          16
+        ],
+        [
+          64,
+          160,
+          16
+        ],
+        [
+          64,
+          168,
+          16
+        ],
+        [
+          64,
+          176,
+          16
+        ],
+        [
+          64,
+          184,
+          16
+        ],
+        [
+          64,
+          192,
+          16
+        ],
+        [
+          64,
+          200,
+          16
+        ],
+        [
+          64,
+          208,
+          16
+        ],
+        [
+          64,
+          216,
+          16
+        ],
+        [
+          64,
+          224,
+          16
+        ],
+        [
+          64,
+          232,
+          16
+        ],
+        [
+          64,
+          240,
+          16
+        ],
+        [
+          64,
+          248,
+          16
+        ],
+        [
+          64,
+          256,
+          16
+        ]
+      ]
+    },
+    {
+      "name": "operand_mode",
+      "kind": "choice",
+      "description": "Register/shared operand residency.",
+      "values": [
+        "RS"
+      ]
+    },
+    {
+      "name": "scale_d",
+      "kind": "choice",
+      "description": "Accumulator participation/scaling control.",
+      "values": [
+        0,
+        1
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "type": "architecture",
+      "expression": "arch == sm90a",
+      "rationale": "WGMMA wrappers require SM90a architecture features."
+    },
+    {
+      "type": "dtype",
+      "expression": "A == tf32 && B == tf32 && accumulator == fp32",
+      "rationale": "Types are encoded in the wrapper name."
+    },
+    {
+      "type": "shape",
+      "expression": "mma_shape in supported_shapes",
+      "rationale": "The normalized method aggregates the concrete instruction shapes listed in parameters."
+    },
+    {
+      "type": "dependency",
+      "expression": "operand_mode == RS",
+      "rationale": "SS and RS wrappers require different operand descriptors/fragments."
+    },
+    {
+      "type": "semantic",
+      "expression": "sparse == true",
+      "rationale": "Sparse WGMMA variants require metadata and structured sparsity semantics."
+    }
+  ],
+  "architectures": [
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cute/arch/mma_sm90_gmma_sparse_ext.hpp",
+        "line_start": 13290,
+        "line_end": 13290,
+        "symbol": "GMMA_64x104x16_F32TF32TF32_RS_TN",
+        "evidence": "CUTLASS declares this named GMMA wrapper at the referenced source line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/mma_sm90_gmma_sparse_ext.hpp",
+        "line_start": 13446,
+        "line_end": 13446,
+        "symbol": "GMMA_64x112x16_F32TF32TF32_RS_TN",
+        "evidence": "CUTLASS declares this named GMMA wrapper at the referenced source line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/mma_sm90_gmma_sparse_ext.hpp",
+        "line_start": 13607,
+        "line_end": 13607,
+        "symbol": "GMMA_64x120x16_F32TF32TF32_RS_TN",
+        "evidence": "CUTLASS declares this named GMMA wrapper at the referenced source line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/mma_sm90_gmma_sparse.hpp",
+        "line_start": 4237,
+        "line_end": 4237,
+        "symbol": "GMMA_64x128x16_F32TF32TF32_RS_TN",
+        "evidence": "CUTLASS declares this named GMMA wrapper at the referenced source line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/mma_sm90_gmma_sparse_ext.hpp",
+        "line_start": 13776,
+        "line_end": 13776,
+        "symbol": "GMMA_64x136x16_F32TF32TF32_RS_TN",
+        "evidence": "CUTLASS declares this named GMMA wrapper at the referenced source line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/mma_sm90_gmma_sparse_ext.hpp",
+        "line_start": 13952,
+        "line_end": 13952,
+        "symbol": "GMMA_64x144x16_F32TF32TF32_RS_TN",
+        "evidence": "CUTLASS declares this named GMMA wrapper at the referenced source line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/mma_sm90_gmma_sparse_ext.hpp",
+        "line_start": 14133,
+        "line_end": 14133,
+        "symbol": "GMMA_64x152x16_F32TF32TF32_RS_TN",
+        "evidence": "CUTLASS declares this named GMMA wrapper at the referenced source line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/mma_sm90_gmma_sparse_ext.hpp",
+        "line_start": 14319,
+        "line_end": 14319,
+        "symbol": "GMMA_64x160x16_F32TF32TF32_RS_TN",
+        "evidence": "CUTLASS declares this named GMMA wrapper at the referenced source line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/mma_sm90_gmma_sparse_ext.hpp",
+        "line_start": 14510,
+        "line_end": 14510,
+        "symbol": "GMMA_64x168x16_F32TF32TF32_RS_TN",
+        "evidence": "CUTLASS declares this named GMMA wrapper at the referenced source line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/mma_sm90_gmma_sparse.hpp",
+        "line_start": 3720,
+        "line_end": 3720,
+        "symbol": "GMMA_64x16x16_F32TF32TF32_RS_TN",
+        "evidence": "CUTLASS declares this named GMMA wrapper at the referenced source line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/mma_sm90_gmma_sparse_ext.hpp",
+        "line_start": 14706,
+        "line_end": 14706,
+        "symbol": "GMMA_64x176x16_F32TF32TF32_RS_TN",
+        "evidence": "CUTLASS declares this named GMMA wrapper at the referenced source line."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/mma_sm90_gmma_sparse_ext.hpp",
+        "line_start": 14907,
+        "line_end": 14907,
+        "symbol": "GMMA_64x184x16_F32TF32TF32_RS_TN",
+        "evidence": "CUTLASS declares this named GMMA wrapper at the referenced source line."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "wgmma",
+    "tensor-core",
+    "rs",
+    "tf32",
+    "fp32",
+    "sparse"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Automatically normalized from concrete CUTLASS wrapper candidates.",
+    "All concrete candidate IDs are retained in atom-method-membership.json.",
+    "Requires semantic review before promotion to curated."
+  ]
+}

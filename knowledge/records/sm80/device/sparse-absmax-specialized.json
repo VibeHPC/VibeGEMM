@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.device.sparse-absmax-specialized",
+  "level": "device",
+  "name": "Sparse GEMM specialized AbsMax interface",
+  "summary": "Manage launch and workspace for the specialized sparse GEMM plus AbsMax kernel.",
+  "primitives": [
+    "class SparseGemmWithAbsmax"
+  ],
+  "strategy": {
+    "intent": "Turn a composed GEMM kernel into a safe, reusable host-callable operation.",
+    "mechanism": "Manage launch and workspace for the specialized sparse GEMM plus AbsMax kernel.",
+    "expected_benefit": "Provides uniform validation, resource management, launch, and workload-mode integration.",
+    "tradeoffs": [
+      "Device wrappers add host-side policy and workspace requirements that must remain consistent with the selected kernel."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "metadata",
+      "kind": "choice",
+      "description": "Device integration parameter: metadata."
+    },
+    {
+      "name": "absmax",
+      "kind": "choice",
+      "description": "Device integration parameter: absmax."
+    },
+    {
+      "name": "stream",
+      "kind": "choice",
+      "description": "Device integration parameter: stream."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "absmax destination is valid",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/device/gemm_sparse_with_absmax.h",
+        "line_start": 114,
+        "line_end": 114,
+        "symbol": "class SparseGemmWithAbsmax",
+        "evidence": "The referenced CUTLASS device API implements this integration method."
+      }
+    ]
+  },
+  "tags": [
+    "device-api",
+    "sparse",
+    "absmax"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

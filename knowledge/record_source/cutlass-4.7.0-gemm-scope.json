@@ -1,0 +1,30 @@
+{
+  "library": "CUTLASS",
+  "version": "4.7.0",
+  "architectures": ["sm80", "sm90", "sm90a"],
+  "operation_scope": ["dense_gemm", "mixed_input_gemm", "sparse_gemm", "grouped_gemm", "array_gemm", "stream_k", "split_k", "fused_epilogue"],
+  "families": [
+    {"id": "sm80-mma-atoms", "level": "atom", "architectures": ["sm80"], "globs": ["cutlass-main/include/cutlass/arch/mma_sm80.h", "cutlass-main/include/cute/arch/mma_sm80.hpp"], "symbols": ["Mma", "SM80_MMA"], "themes": ["mma.sync", "fp16", "bf16", "tf32", "int8", "int4", "binary"]},
+    {"id": "sm80-async-copy-atoms", "level": "atom", "architectures": ["sm80"], "globs": ["cutlass-main/include/cutlass/arch/memory_sm80.h", "cutlass-main/include/cute/arch/copy_sm80.hpp"], "symbols": ["cp_async", "SM80_CP_ASYNC"], "themes": ["cp.async", "cache-policy", "zfill", "commit-group", "wait-group"]},
+    {"id": "sm90-wgmma-atoms", "level": "atom", "architectures": ["sm90a"], "globs": ["cutlass-main/include/cute/arch/mma_sm90*.hpp"], "symbols": ["MMA_", "GMMA"], "themes": ["wgmma", "ss", "rs", "fp16", "bf16", "tf32", "fp8", "sparse"]},
+    {"id": "sm90-tma-atoms", "level": "atom", "architectures": ["sm90", "sm90a"], "globs": ["cutlass-main/include/cute/arch/copy_sm90*.hpp"], "symbols": ["SM90_TMA"], "themes": ["tma-load", "tma-store", "multicast", "im2col", "descriptor", "prefetch"]},
+
+    {"id": "sm80-tile-builders", "level": "tile", "architectures": ["sm80"], "globs": ["cutlass-main/include/cutlass/gemm/threadblock/default_mma*.h", "cutlass-main/include/cutlass/gemm/warp/default_mma*.h"], "symbols": ["DefaultMma", "DefaultMmaCore"], "themes": ["threadblock-shape", "warp-shape", "instruction-shape", "layout", "alignment"]},
+    {"id": "sm90-tile-builders", "level": "tile", "architectures": ["sm90", "sm90a"], "globs": ["cutlass-main/include/cutlass/gemm/collective/builders/sm90*.inl"], "symbols": ["CollectiveBuilder", "make_tiled_mma", "TileShape"], "themes": ["cta-shape", "cluster-shape", "wgmma-shape", "smem-layout", "alignment"]},
+
+    {"id": "sm80-mainloops", "level": "collective", "architectures": ["sm80"], "globs": ["cutlass-main/include/cutlass/gemm/threadblock/*mma_multistage*.h", "cutlass-main/include/cutlass/gemm/collective/sm80*.hpp"], "symbols": ["MmaMultistage", "CollectiveMma"], "themes": ["cp.async", "multistage", "array", "predication", "cache-policy"]},
+    {"id": "sm90-tma-mainloops", "level": "collective", "architectures": ["sm90", "sm90a"], "globs": ["cutlass-main/include/cutlass/gemm/collective/sm90_mma_tma*.hpp"], "symbols": ["CollectiveMma"], "themes": ["tma", "warp-specialized", "ss", "rs", "mixed-input", "fp8-scaling", "array"]},
+    {"id": "sm90-non-tma-mainloops", "level": "collective", "architectures": ["sm90a"], "globs": ["cutlass-main/include/cutlass/gemm/collective/sm90_mma_multistage*.hpp"], "symbols": ["CollectiveMma"], "themes": ["multistage", "wgmma", "ss", "rs"]},
+    {"id": "sm90-sparse-mainloops", "level": "collective", "architectures": ["sm90a"], "globs": ["cutlass-main/include/cutlass/gemm/collective/sm90_sparse*.hpp"], "symbols": ["CollectiveMma"], "themes": ["sparse", "metadata", "tma", "fp8"]},
+    {"id": "epilogue-collectives", "level": "collective", "architectures": ["sm80", "sm90", "sm90a"], "globs": ["cutlass-main/include/cutlass/epilogue/collective/*.hpp", "cutlass-main/include/cutlass/epilogue/threadblock/*.h"], "symbols": ["CollectiveEpilogue", "Epilogue"], "themes": ["linear-combination", "tma-store", "bias", "activation", "visitor", "reduction"]},
+
+    {"id": "sm80-universal-kernels", "level": "kernel", "architectures": ["sm80"], "globs": ["cutlass-main/include/cutlass/gemm/kernel/gemm_universal*.h", "cutlass-main/include/cutlass/gemm/kernel/default_gemm_universal*.h"], "symbols": ["GemmUniversal"], "themes": ["universal", "split-k", "stream-k", "visitor", "swizzle"]},
+    {"id": "sm90-warp-specialized-kernels", "level": "kernel", "architectures": ["sm90", "sm90a"], "globs": ["cutlass-main/include/cutlass/gemm/kernel/sm90_gemm*.hpp"], "symbols": ["GemmUniversal"], "themes": ["warp-specialized", "pingpong", "cooperative", "persistent", "array"]},
+    {"id": "sm90-schedulers", "level": "kernel", "architectures": ["sm90", "sm90a"], "globs": ["cutlass-main/include/cutlass/gemm/kernel/sm90_tile_scheduler*.hpp"], "symbols": ["PersistentTileScheduler", "StreamKTileScheduler", "GroupedTileScheduler"], "themes": ["persistent", "stream-k", "grouped", "raster-order", "cluster"]},
+
+    {"id": "gemm-device-adapters", "level": "device", "architectures": ["sm80", "sm90", "sm90a"], "globs": ["cutlass-main/include/cutlass/gemm/device/gemm*.h"], "symbols": ["Gemm", "GemmUniversalAdapter"], "themes": ["launch", "workspace", "capability-check", "stream"]},
+    {"id": "grouped-array-batched-device", "level": "device", "architectures": ["sm80", "sm90", "sm90a"], "globs": ["cutlass-main/include/cutlass/gemm/device/*grouped*.h", "cutlass-main/include/cutlass/gemm/device/gemm_array.h", "cutlass-main/include/cutlass/gemm/device/gemm_batched.h"], "symbols": ["GemmGrouped", "GemmArray", "GemmBatched"], "themes": ["grouped", "array", "batched", "problem-visitor"]},
+    {"id": "sparse-device", "level": "device", "architectures": ["sm80", "sm90", "sm90a"], "globs": ["cutlass-main/include/cutlass/gemm/device/*sparse*.h"], "symbols": ["GemmSparse"], "themes": ["sparse", "metadata", "absmax", "visitor"]}
+  ]
+}
+

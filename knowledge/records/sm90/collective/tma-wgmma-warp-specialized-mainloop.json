@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90a.collective.tma-wgmma-warp-specialized-mainloop",
+  "level": "collective",
+  "name": "TMA producer and WGMMA consumer mainloop",
+  "summary": "Separate TMA data movement from WGMMA computation across specialized warps and coordinate reusable shared-memory stages with an asynchronous pipeline.",
+  "primitives": [
+    "SM90_TMA_LOAD",
+    "PipelineTmaAsync",
+    "warpgroup WGMMA"
+  ],
+  "strategy": {
+    "intent": "Overlap global-to-shared transfers with Tensor Core computation.",
+    "mechanism": "Producer warps fill circular shared-memory stages through TMA while consumer warpgroups wait on full stages, issue WGMMA, and release stages for reuse.",
+    "expected_benefit": "Hides memory latency and permits sustained asynchronous WGMMA issue.",
+    "tradeoffs": [
+      "Consumes shared memory proportional to stage count.",
+      "Requires correct producer-consumer barrier protocol and warp role assignment."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "stages",
+      "kind": "integer",
+      "description": "Number of shared-memory pipeline buffers."
+    },
+    {
+      "name": "cluster_shape",
+      "kind": "shape",
+      "description": "Thread-block cluster dimensions used by TMA multicast and scheduling."
+    },
+    {
+      "name": "kernel_schedule",
+      "kind": "choice",
+      "description": "Warp-specialized schedule policy controlling producer and consumer behavior."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "dependency",
+      "expression": "tma_copy_A && tma_copy_B && tiled_wgmma",
+      "rationale": "This collective composes TMA copies with a tiled GMMA operator."
+    },
+    {
+      "type": "resource",
+      "expression": "stages >= 2",
+      "rationale": "Overlapping a producer with consumers requires reusable buffered stages."
+    },
+    {
+      "type": "semantic",
+      "expression": "exactly_one_elected_thread_issues_each_tma_copy",
+      "rationale": "TMA operations are issued by an elected producer thread and observed through the pipeline."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/collective/sm90_mma_tma_gmma_ss_warpspecialized.hpp",
+        "line_start": 72,
+        "line_end": 130,
+        "symbol": "CollectiveMma",
+        "evidence": "The collective declares TMA copies, the tiled MMA, shared storage, and PipelineTmaAsync."
+      },
+      {
+        "path": "cutlass-main/include/cute/arch/copy_sm90_tma.hpp",
+        "line_start": 327,
+        "line_end": 395,
+        "symbol": "SM90_TMA_LOAD",
+        "evidence": "The copy atom dispatches rank-specific TMA loads and tensor-map prefetch operations."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "tma",
+    "wgmma",
+    "warp-specialized",
+    "pipeline",
+    "double-buffering"
+  ],
+  "status": "curated"
+}

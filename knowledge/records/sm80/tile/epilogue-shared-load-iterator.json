@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.tile.epilogue-shared-load-iterator",
+  "level": "tile",
+  "name": "Epilogue shared-memory load iterator",
+  "summary": "Reload exchanged accumulator tiles from shared memory into thread fragments arranged for output operations.",
+  "primitives": [
+    "class SharedLoadIterator"
+  ],
+  "strategy": {
+    "intent": "Construct a legal and performance-relevant GEMM tile mapping for the target architecture.",
+    "mechanism": "Map output thread lanes to shared-memory rows and vector loads after accumulator exchange.",
+    "expected_benefit": "Exposes data reuse and parallel Tensor Core work while respecting layout and resource limits.",
+    "tradeoffs": [
+      "Tile choices change shared-memory use, register pressure, occupancy, and available grid parallelism."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "thread_map",
+      "kind": "choice",
+      "description": "Tunable or derived tile property: thread_map."
+    },
+    {
+      "name": "elements_per_access",
+      "kind": "integer",
+      "description": "Tunable or derived tile property: elements_per_access."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "layout",
+      "expression": "shared load mapping matches accumulator store mapping",
+      "rationale": "Reloaded fragments must preserve output coordinates."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/threadblock/shared_load_iterator.h",
+        "line_start": 67,
+        "line_end": 67,
+        "symbol": "class SharedLoadIterator",
+        "evidence": "The referenced CUTLASS builder/core expression implements this tile decision."
+      }
+    ]
+  },
+  "tags": [
+    "epilogue",
+    "shared-memory",
+    "iterator",
+    "fragment"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted parameterized method; requires semantic review before promotion to curated."
+  ]
+}

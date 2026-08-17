@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.device.feasibility-check",
+  "level": "device",
+  "name": "Pre-launch feasibility check",
+  "summary": "Reject unsupported shapes, alignments, layouts, schedules, and hardware configurations before launching a GEMM kernel.",
+  "primitives": [
+    "can_implement(Arguments const& args)"
+  ],
+  "strategy": {
+    "intent": "Turn a composed GEMM kernel into a safe, reusable host-callable operation.",
+    "mechanism": "Reject unsupported shapes, alignments, layouts, schedules, and hardware configurations before launching a GEMM kernel.",
+    "expected_benefit": "Provides uniform validation, resource management, launch, and workload-mode integration.",
+    "tradeoffs": [
+      "Device wrappers add host-side policy and workspace requirements that must remain consistent with the selected kernel."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "arguments",
+      "kind": "choice",
+      "description": "Device integration parameter: arguments."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "can_implement(args) returns success",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/device/gemm_universal_adapter.h",
+        "line_start": 232,
+        "line_end": 232,
+        "symbol": "can_implement(Arguments const& args)",
+        "evidence": "The referenced CUTLASS device API implements this integration method."
+      }
+    ]
+  },
+  "tags": [
+    "device-api",
+    "validation",
+    "can-implement"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

@@ -1,0 +1,215 @@
+{
+  "schema_version": "1.0.0",
+  "integration_id": "patch-integration:f17305f630780e93",
+  "architecture": "sm90a",
+  "variant_id": "quantized_gemm",
+  "mode": "placeholder_integration",
+  "real_llm_called": false,
+  "real_cuda_integration_performed": false,
+  "source": {
+    "localization_path": "variant_patch/patch_localization/results/sm90a/quantized_gemm.json",
+    "localization_sha256": "b8bc741ad6d9adc5c46174d402db2ee04c8485f7a7436d8abcff62a4756a59f3",
+    "original_backbone_path": "backbone_optimization/progressive_refinement/artifacts/sm90a-placeholder-refinement-v1/trajectory-d5c451bafc8eeafb/step-0002-attempt-0.cu",
+    "original_backbone_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751"
+  },
+  "transaction": {
+    "atomic": true,
+    "partial_outputs_committed": false,
+    "steps": [
+      {
+        "index": 0,
+        "localization_id": "localization:95dcc7eed58a22d8",
+        "provider": "placeholder-integration-llm-v1",
+        "placeholder": true,
+        "prompt": {
+          "task": "generate_and_integrate_one_localized_cuda_patch",
+          "architecture": "sm90a",
+          "variant_id": "quantized_gemm",
+          "latest_candidate_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+          "original_backbone": {
+            "path": "backbone_optimization/progressive_refinement/artifacts/sm90a-placeholder-refinement-v1/trajectory-d5c451bafc8eeafb/step-0002-attempt-0.cu",
+            "sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+            "is_placeholder": true
+          },
+          "target_region": "epilogue",
+          "candidate_insertion_points": [
+            "after_final_accumulator_before_output_conversion",
+            "before_global_store"
+          ],
+          "computation": "Y = cast(acc)",
+          "required_live_values": [
+            "acc"
+          ],
+          "produced_values": [
+            "Y"
+          ],
+          "tensor_requirements": [
+            {
+              "name": "acc",
+              "dtype": "fp32",
+              "layout": "tile"
+            },
+            {
+              "name": "Y",
+              "dtype": "fp16|bf16",
+              "layout": "row_major"
+            }
+          ],
+          "backbone_invariants": [
+            "preserve GEMM tensor-core instruction family",
+            "preserve tile shapes and thread/warp mapping",
+            "preserve mainloop pipeline and synchronization unless required by the patch",
+            "preserve existing shared-memory and register lifetimes",
+            "modify only the selected localized region"
+          ],
+          "requirements": [
+            "modify only the localized region",
+            "preserve all unrelated backbone source",
+            "return the complete integrated CUDA source",
+            "preserve variant numerical semantics"
+          ]
+        },
+        "input_source_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+        "output_source_sha256": "3dd3873a421fee535c139a62cc3df8d18d8e205791ae4384d83a98b4e756ba0f",
+        "status": "placeholder_transform_applied"
+      },
+      {
+        "index": 1,
+        "localization_id": "localization:303f6a9f73c61eaf",
+        "provider": "placeholder-integration-llm-v1",
+        "placeholder": true,
+        "prompt": {
+          "task": "generate_and_integrate_one_localized_cuda_patch",
+          "architecture": "sm90a",
+          "variant_id": "quantized_gemm",
+          "latest_candidate_sha256": "3dd3873a421fee535c139a62cc3df8d18d8e205791ae4384d83a98b4e756ba0f",
+          "original_backbone": {
+            "path": "backbone_optimization/progressive_refinement/artifacts/sm90a-placeholder-refinement-v1/trajectory-d5c451bafc8eeafb/step-0002-attempt-0.cu",
+            "sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+            "is_placeholder": true
+          },
+          "target_region": "mainloop_input_movement",
+          "candidate_insertion_points": [
+            "after_tma_load_before_wgmma",
+            "after_shared_memory_load_before_wgmma"
+          ],
+          "computation": "A = dequantize(Aq, sa)",
+          "required_live_values": [
+            "Aq",
+            "sa"
+          ],
+          "produced_values": [
+            "A"
+          ],
+          "tensor_requirements": [
+            {
+              "name": "Aq",
+              "dtype": "int4|fp8",
+              "layout": "packed_row"
+            },
+            {
+              "name": "sa",
+              "dtype": "fp16|fp32",
+              "layout": "scale"
+            },
+            {
+              "name": "A",
+              "dtype": "fp16|bf16",
+              "layout": "row_major"
+            }
+          ],
+          "backbone_invariants": [
+            "preserve GEMM tensor-core instruction family",
+            "preserve tile shapes and thread/warp mapping",
+            "preserve mainloop pipeline and synchronization unless required by the patch",
+            "preserve existing shared-memory and register lifetimes",
+            "modify only the selected localized region"
+          ],
+          "requirements": [
+            "modify only the localized region",
+            "preserve all unrelated backbone source",
+            "return the complete integrated CUDA source",
+            "preserve variant numerical semantics"
+          ]
+        },
+        "input_source_sha256": "3dd3873a421fee535c139a62cc3df8d18d8e205791ae4384d83a98b4e756ba0f",
+        "output_source_sha256": "af8c9f0d2783422b479ea3b5f7ea8819b30d3b42c7c5b01e355a87dcff37cec8",
+        "status": "placeholder_transform_applied"
+      },
+      {
+        "index": 2,
+        "localization_id": "localization:a03eee6dfff12fc9",
+        "provider": "placeholder-integration-llm-v1",
+        "placeholder": true,
+        "prompt": {
+          "task": "generate_and_integrate_one_localized_cuda_patch",
+          "architecture": "sm90a",
+          "variant_id": "quantized_gemm",
+          "latest_candidate_sha256": "af8c9f0d2783422b479ea3b5f7ea8819b30d3b42c7c5b01e355a87dcff37cec8",
+          "original_backbone": {
+            "path": "backbone_optimization/progressive_refinement/artifacts/sm90a-placeholder-refinement-v1/trajectory-d5c451bafc8eeafb/step-0002-attempt-0.cu",
+            "sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+            "is_placeholder": true
+          },
+          "target_region": "mainloop_input_movement",
+          "candidate_insertion_points": [
+            "after_tma_load_before_wgmma",
+            "after_shared_memory_load_before_wgmma"
+          ],
+          "computation": "B = dequantize(Bq, sb)",
+          "required_live_values": [
+            "Bq",
+            "sb"
+          ],
+          "produced_values": [
+            "B"
+          ],
+          "tensor_requirements": [
+            {
+              "name": "Bq",
+              "dtype": "int4|fp8",
+              "layout": "packed_column"
+            },
+            {
+              "name": "sb",
+              "dtype": "fp16|fp32",
+              "layout": "scale"
+            },
+            {
+              "name": "B",
+              "dtype": "fp16|bf16",
+              "layout": "column_major"
+            }
+          ],
+          "backbone_invariants": [
+            "preserve GEMM tensor-core instruction family",
+            "preserve tile shapes and thread/warp mapping",
+            "preserve mainloop pipeline and synchronization unless required by the patch",
+            "preserve existing shared-memory and register lifetimes",
+            "modify only the selected localized region"
+          ],
+          "requirements": [
+            "modify only the localized region",
+            "preserve all unrelated backbone source",
+            "return the complete integrated CUDA source",
+            "preserve variant numerical semantics"
+          ]
+        },
+        "input_source_sha256": "af8c9f0d2783422b479ea3b5f7ea8819b30d3b42c7c5b01e355a87dcff37cec8",
+        "output_source_sha256": "3e9072bd41da43b60445530d1abc9b5d0899ac64a0b693ea7d4c7dda8ba9b0b2",
+        "status": "placeholder_transform_applied"
+      }
+    ],
+    "candidate_path": "variant_patch/patch_integration/artifacts/sm90a/quantized_gemm/kernel.variant.placeholder.cu",
+    "candidate_sha256": "3e9072bd41da43b60445530d1abc9b5d0899ac64a0b693ea7d4c7dda8ba9b0b2",
+    "status": "placeholder_candidate_committed"
+  },
+  "rollback": {
+    "action": "discard_candidate_and_restore_original_backbone",
+    "target_path": "backbone_optimization/progressive_refinement/artifacts/sm90a-placeholder-refinement-v1/trajectory-d5c451bafc8eeafb/step-0002-attempt-0.cu",
+    "target_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751"
+  },
+  "ready_for_real_validation": false,
+  "status": "integration_placeholder_created",
+  "next_stage": "replace_placeholder_or_final_validation"
+}

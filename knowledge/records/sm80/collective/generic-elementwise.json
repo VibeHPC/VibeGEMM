@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.collective.generic-elementwise",
+  "level": "collective",
+  "name": "Generic elementwise output fusion",
+  "summary": "Attach a caller-selected elementwise functor to the standard linear-combination output path.",
+  "primitives": [
+    "class LinearCombinationWithElementwise"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Attach a caller-selected elementwise functor to the standard linear-combination output path.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "elementwise_op",
+      "kind": "choice",
+      "description": "Collective configuration parameter: elementwise_op."
+    },
+    {
+      "name": "compute_dtype",
+      "kind": "choice",
+      "description": "Collective configuration parameter: compute_dtype."
+    },
+    {
+      "name": "output_dtype",
+      "kind": "choice",
+      "description": "Collective configuration parameter: output_dtype."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "elementwise functor is valid for each output fragment",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/thread/linear_combination_with_elementwise.h",
+        "line_start": 70,
+        "line_end": 70,
+        "symbol": "class LinearCombinationWithElementwise",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "epilogue",
+    "elementwise",
+    "fusion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

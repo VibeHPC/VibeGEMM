@@ -1,0 +1,135 @@
+{
+  "schema_version": "1.0.0",
+  "analysis_id": "variant-analysis:d210f2941c584fad",
+  "variant_id": "gemm_rope",
+  "name": "GEMM + Permute + RoPE",
+  "supported_architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "problem": {
+    "dimensions": [
+      "M",
+      "N",
+      "K"
+    ],
+    "representative_shapes": [
+      [
+        2048,
+        4096,
+        4096
+      ],
+      [
+        8192,
+        8192,
+        8192
+      ]
+    ]
+  },
+  "reference": {
+    "kind": "symbolic",
+    "description": "Y = RoPE(Permute(X @ W))"
+  },
+  "backbone_operations": [
+    "gemm"
+  ],
+  "variant_operations": [
+    {
+      "id": "permute",
+      "kind": "permute",
+      "inputs": [
+        "acc"
+      ],
+      "outputs": [
+        "permuted"
+      ],
+      "expression": "permuted = pair_permute(acc)",
+      "topological_index": 1
+    },
+    {
+      "id": "rope",
+      "kind": "rope",
+      "inputs": [
+        "permuted",
+        "cos",
+        "sin"
+      ],
+      "outputs": [
+        "Y"
+      ],
+      "expression": "Y = RoPE(permuted, cos, sin)",
+      "topological_index": 2
+    }
+  ],
+  "data_dependencies": [
+    {
+      "value": "Y",
+      "producer": "rope",
+      "consumers": []
+    },
+    {
+      "value": "acc",
+      "producer": "gemm",
+      "consumers": [
+        "permute"
+      ]
+    },
+    {
+      "value": "permuted",
+      "producer": "permute",
+      "consumers": [
+        "rope"
+      ]
+    }
+  ],
+  "patch_groups": [
+    {
+      "group_id": "patch-group:2401a9d58bf53250",
+      "operation_ids": [
+        "permute",
+        "rope"
+      ],
+      "computation": "permuted = pair_permute(acc) -> Y = RoPE(permuted, cos, sin)",
+      "inputs": [
+        "acc",
+        "cos",
+        "sin"
+      ],
+      "outputs": [
+        "Y"
+      ],
+      "tensor_requirements": [
+        {
+          "name": "acc",
+          "dtype": "fp32",
+          "layout": "tile"
+        },
+        {
+          "name": "cos",
+          "dtype": "fp16|fp32",
+          "layout": "position_dimension"
+        },
+        {
+          "name": "sin",
+          "dtype": "fp16|fp32",
+          "layout": "position_dimension"
+        },
+        {
+          "name": "Y",
+          "dtype": "fp16|bf16",
+          "layout": "rope_pairs"
+        }
+      ],
+      "availability_stage": "epilogue",
+      "stage_rationale": "its operand becomes available after GEMM accumulation",
+      "requires_reduction": false,
+      "localization_status": "pending"
+    }
+  ],
+  "outputs": [
+    "Y"
+  ],
+  "status": "analyzed",
+  "next_stage": "patch_localization"
+}

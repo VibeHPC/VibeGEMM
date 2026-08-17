@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.atom.sm90-tma-load-multicast-1d",
+  "level": "atom",
+  "name": "Hopper SM90_TMA_LOAD_MULTICAST_1D",
+  "summary": "Use SM90_TMA_LOAD_MULTICAST_1D to transfer a global-memory tensor tile to shared memory through TMA with CTA-cluster multicast.",
+  "primitives": [
+    "TMA",
+    "SM90_TMA_LOAD_MULTICAST_1D"
+  ],
+  "strategy": {
+    "intent": "Map GEMM arithmetic to architecture-native Tensor Core instructions.",
+    "mechanism": "Issue an asynchronous Hopper TMA load using a CUtensorMap descriptor instead of per-thread global-memory address calculations.",
+    "expected_benefit": "Uses the GPU matrix-multiply datapath instead of scalar arithmetic.",
+    "tradeoffs": [
+      "Requires compatible fragment layouts, data types, alignment, and architecture support."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "tensor_rank",
+      "kind": "integer",
+      "description": "Rank of coordinates encoded by the wrapper.",
+      "values": [
+        1
+      ]
+    },
+    {
+      "name": "cache_hint",
+      "kind": "integer",
+      "description": "Optional TMA cache-hint value."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "architecture",
+      "expression": "arch in {sm90, sm90a}",
+      "rationale": "TMA is a Hopper data-movement facility."
+    },
+    {
+      "type": "dependency",
+      "expression": "valid_CUtensorMap_descriptor",
+      "rationale": "TMA instructions consume a tensor-map descriptor."
+    },
+    {
+      "type": "layout",
+      "expression": "tensor_shape_stride_and_smem_layout_match_descriptor",
+      "rationale": "Descriptor coordinates and destination layout must agree."
+    },
+    {
+      "type": "dependency",
+      "expression": "cluster_mask_selects_valid_peer_ctas",
+      "rationale": "Multicast distributes a load to selected CTAs in a cluster."
+    },
+    {
+      "type": "semantic",
+      "expression": "mbarrier_tracks_expected_transaction_bytes",
+      "rationale": "Consumers wait for TMA load completion through an mbarrier."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cute/arch/copy_sm90_tma.hpp",
+        "line_start": 626,
+        "line_end": 626,
+        "symbol": "SM90_TMA_LOAD_MULTICAST_1D",
+        "evidence": "CUTLASS declares this rank/operation-specific TMA wrapper at the referenced line."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "tma",
+    "load",
+    "multicast",
+    "rank-1"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Automatically extracted; requires semantic review before promotion to curated."
+  ]
+}

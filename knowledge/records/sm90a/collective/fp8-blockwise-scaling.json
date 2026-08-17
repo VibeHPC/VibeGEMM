@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90a.collective.fp8-blockwise-scaling",
+  "level": "collective",
+  "name": "SM90 FP8 blockwise scaling mainloop",
+  "summary": "Load block scale factors alongside FP8 operand tiles and promote them at intervals compatible with WGMMA K iterations.",
+  "primitives": [
+    "ScaleGranularityK"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Load block scale factors alongside FP8 operand tiles and promote them at intervals compatible with WGMMA K iterations.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "scale_granularity_m",
+      "kind": "integer",
+      "description": "Collective configuration parameter: scale_granularity_m."
+    },
+    {
+      "name": "scale_granularity_n",
+      "kind": "integer",
+      "description": "Collective configuration parameter: scale_granularity_n."
+    },
+    {
+      "name": "scale_granularity_k",
+      "kind": "integer",
+      "description": "Collective configuration parameter: scale_granularity_k."
+    },
+    {
+      "name": "scale_promotion_interval",
+      "kind": "integer",
+      "description": "Collective configuration parameter: scale_promotion_interval."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "tile dimensions are divisible by scale granularity",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    },
+    {
+      "type": "shape",
+      "expression": "scale promotion interval aligns with MMA K iterations",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/collective/sm90_mma_tma_gmma_ss_warpspecialized_fp8_blockwise_scaling.hpp",
+        "line_start": 125,
+        "line_end": 125,
+        "symbol": "ScaleGranularityK",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "fp8",
+    "blockwise-scaling",
+    "wgmma"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

@@ -1,0 +1,211 @@
+{
+  "schema_version": "1.0.0",
+  "analysis_id": "variant-analysis:fb995a3df5bf6972",
+  "variant_id": "quantized_gemm",
+  "name": "Quantized GEMM",
+  "supported_architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "problem": {
+    "dimensions": [
+      "M",
+      "N",
+      "K"
+    ],
+    "representative_shapes": [
+      [
+        32,
+        11008,
+        4096
+      ],
+      [
+        64,
+        4096,
+        14336
+      ]
+    ]
+  },
+  "reference": {
+    "kind": "symbolic",
+    "description": "Y = (sa * Aq) @ (sb * Bq)"
+  },
+  "backbone_operations": [
+    "gemm"
+  ],
+  "variant_operations": [
+    {
+      "id": "dequant_a",
+      "kind": "dequantize",
+      "inputs": [
+        "Aq",
+        "sa"
+      ],
+      "outputs": [
+        "A"
+      ],
+      "expression": "A = dequantize(Aq, sa)",
+      "topological_index": 0
+    },
+    {
+      "id": "dequant_b",
+      "kind": "dequantize",
+      "inputs": [
+        "Bq",
+        "sb"
+      ],
+      "outputs": [
+        "B"
+      ],
+      "expression": "B = dequantize(Bq, sb)",
+      "topological_index": 1
+    },
+    {
+      "id": "cast_output",
+      "kind": "cast",
+      "inputs": [
+        "acc"
+      ],
+      "outputs": [
+        "Y"
+      ],
+      "expression": "Y = cast(acc)",
+      "topological_index": 3
+    }
+  ],
+  "data_dependencies": [
+    {
+      "value": "A",
+      "producer": "dequant_a",
+      "consumers": [
+        "gemm"
+      ]
+    },
+    {
+      "value": "B",
+      "producer": "dequant_b",
+      "consumers": [
+        "gemm"
+      ]
+    },
+    {
+      "value": "Y",
+      "producer": "cast_output",
+      "consumers": []
+    },
+    {
+      "value": "acc",
+      "producer": "gemm",
+      "consumers": [
+        "cast_output"
+      ]
+    }
+  ],
+  "patch_groups": [
+    {
+      "group_id": "patch-group:0ad4ff2fa3bcc7d1",
+      "operation_ids": [
+        "cast_output"
+      ],
+      "computation": "Y = cast(acc)",
+      "inputs": [
+        "acc"
+      ],
+      "outputs": [
+        "Y"
+      ],
+      "tensor_requirements": [
+        {
+          "name": "acc",
+          "dtype": "fp32",
+          "layout": "tile"
+        },
+        {
+          "name": "Y",
+          "dtype": "fp16|bf16",
+          "layout": "row_major"
+        }
+      ],
+      "availability_stage": "epilogue",
+      "stage_rationale": "its operand becomes available after GEMM accumulation",
+      "requires_reduction": false,
+      "localization_status": "pending"
+    },
+    {
+      "group_id": "patch-group:ff04e2a561f72ab1",
+      "operation_ids": [
+        "dequant_a"
+      ],
+      "computation": "A = dequantize(Aq, sa)",
+      "inputs": [
+        "Aq",
+        "sa"
+      ],
+      "outputs": [
+        "A"
+      ],
+      "tensor_requirements": [
+        {
+          "name": "Aq",
+          "dtype": "int4|fp8",
+          "layout": "packed_row"
+        },
+        {
+          "name": "sa",
+          "dtype": "fp16|fp32",
+          "layout": "scale"
+        },
+        {
+          "name": "A",
+          "dtype": "fp16|bf16",
+          "layout": "row_major"
+        }
+      ],
+      "availability_stage": "input_data_movement",
+      "stage_rationale": "transforms a GEMM operand before it is consumed",
+      "requires_reduction": false,
+      "localization_status": "pending"
+    },
+    {
+      "group_id": "patch-group:48471c864551f61b",
+      "operation_ids": [
+        "dequant_b"
+      ],
+      "computation": "B = dequantize(Bq, sb)",
+      "inputs": [
+        "Bq",
+        "sb"
+      ],
+      "outputs": [
+        "B"
+      ],
+      "tensor_requirements": [
+        {
+          "name": "Bq",
+          "dtype": "int4|fp8",
+          "layout": "packed_column"
+        },
+        {
+          "name": "sb",
+          "dtype": "fp16|fp32",
+          "layout": "scale"
+        },
+        {
+          "name": "B",
+          "dtype": "fp16|bf16",
+          "layout": "column_major"
+        }
+      ],
+      "availability_stage": "input_data_movement",
+      "stage_rationale": "transforms a GEMM operand before it is consumed",
+      "requires_reduction": false,
+      "localization_status": "pending"
+    }
+  ],
+  "outputs": [
+    "Y"
+  ],
+  "status": "analyzed",
+  "next_stage": "patch_localization"
+}

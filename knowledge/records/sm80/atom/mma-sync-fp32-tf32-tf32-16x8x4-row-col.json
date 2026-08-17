@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.atom.mma-sync-fp32-tf32-tf32-16x8x4-row-col",
+  "level": "atom",
+  "name": "SM80 MMA.SYNC 16x8x4 tf32/tf32 to fp32",
+  "summary": "Issue an Ampere warp-level 16x8x4 MMA.SYNC operation with tf32 and tf32 inputs, fp32 source accumulators, and fp32 outputs.",
+  "primitives": [
+    "mma.sync",
+    "mma.sync.aligned.m16n8k4.row.col.f32.tf32.tf32.f32"
+  ],
+  "strategy": {
+    "intent": "Map GEMM arithmetic to architecture-native Tensor Core instructions.",
+    "mechanism": "Distribute register fragments across 32 threads and issue the exact MMA.SYNC PTX instruction exposed by the CUTLASS wrapper.",
+    "expected_benefit": "Uses the GPU matrix-multiply datapath instead of scalar arithmetic.",
+    "tradeoffs": [
+      "Requires compatible fragment layouts, data types, alignment, and architecture support."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "layout_a",
+      "kind": "choice",
+      "description": "Instruction layout for A.",
+      "values": [
+        "row"
+      ]
+    },
+    {
+      "name": "layout_b",
+      "kind": "choice",
+      "description": "Instruction layout for B.",
+      "values": [
+        "col"
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "type": "architecture",
+      "expression": "arch >= sm80",
+      "rationale": "The instruction is exposed by the SM80 architecture wrapper."
+    },
+    {
+      "type": "dtype",
+      "expression": "A == tf32 && B == tf32 && C == fp32 && D == fp32",
+      "rationale": "Operand types are encoded by the PTX instruction."
+    },
+    {
+      "type": "shape",
+      "expression": "mma_shape == (16, 8, 4)",
+      "rationale": "Instruction shape is fixed in PTX."
+    },
+    {
+      "type": "dependency",
+      "expression": "threads_per_mma == 32",
+      "rationale": "MMA.SYNC is warp-level."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/arch/mma_sm80.h",
+        "line_start": 191,
+        "line_end": 191,
+        "symbol": "mma.sync.aligned",
+        "evidence": "The CUTLASS wrapper emits this exact SM80 MMA.SYNC instruction."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "mma-sync",
+    "tensor-core",
+    "tf32",
+    "fp32"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Automatically extracted; requires semantic review before promotion to curated."
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.collective.reduction-mainloop",
+  "level": "collective",
+  "name": "SM80 mainloop with fused K reduction",
+  "summary": "Accumulate an auxiliary reduction while executing the multistage GEMM mainloop.",
+  "primitives": [
+    "class MmaWithReductionMultistage"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Accumulate an auxiliary reduction while executing the multistage GEMM mainloop.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "stages",
+      "kind": "integer",
+      "description": "Collective configuration parameter: stages."
+    },
+    {
+      "name": "reduction_op",
+      "kind": "choice",
+      "description": "Collective configuration parameter: reduction_op."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "resource",
+      "expression": "reduction fragments fit register budget",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/threadblock/mma_with_reduction_multistage.h",
+        "line_start": 90,
+        "line_end": 90,
+        "symbol": "class MmaWithReductionMultistage",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "mainloop",
+    "reduction",
+    "fusion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

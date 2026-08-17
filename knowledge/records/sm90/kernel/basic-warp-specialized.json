@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.kernel.basic-warp-specialized",
+  "level": "kernel",
+  "name": "SM90 basic warp-specialized persistent GEMM",
+  "summary": "Assign separate producer and consumer warpgroups, initialize their collective pipelines, and repeatedly execute scheduler-provided output tiles.",
+  "primitives": [
+    "WarpGroupRole"
+  ],
+  "strategy": {
+    "intent": "Compose validated GEMM collectives with a grid/work scheduler into a complete CUDA kernel.",
+    "mechanism": "Assign separate producer and consumer warpgroups, initialize their collective pipelines, and repeatedly execute scheduler-provided output tiles.",
+    "expected_benefit": "Improves device utilization, overlap, locality, or workload coverage while preserving collective implementations.",
+    "tradeoffs": [
+      "Kernel schedules constrain tile shapes, resources, synchronization, and applicable problem regimes."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "producer_warps",
+      "kind": "integer",
+      "description": "Kernel configuration parameter: producer_warps."
+    },
+    {
+      "name": "consumer_warpgroups",
+      "kind": "integer",
+      "description": "Kernel configuration parameter: consumer_warpgroups."
+    },
+    {
+      "name": "tile_scheduler",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: tile_scheduler."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "warp roles match collective pipeline roles",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    },
+    {
+      "type": "dependency",
+      "expression": "mainloop and epilogue collectives share compatible tiles",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/sm90_gemm_tma_warpspecialized.hpp",
+        "line_start": 284,
+        "line_end": 284,
+        "symbol": "WarpGroupRole",
+        "evidence": "The referenced CUTLASS kernel or scheduler implements this composition strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "warp-specialized",
+    "persistent",
+    "producer-consumer"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

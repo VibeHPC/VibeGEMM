@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.collective.tensor-broadcast-fusion",
+  "level": "collective",
+  "name": "Tensor-broadcast linear combination",
+  "summary": "Combine GEMM output with a broadcast tensor under a configurable elementwise operation.",
+  "primitives": [
+    "class LinearCombinationTensorBroadcast"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Combine GEMM output with a broadcast tensor under a configurable elementwise operation.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "broadcast_tensor",
+      "kind": "choice",
+      "description": "Collective configuration parameter: broadcast_tensor."
+    },
+    {
+      "name": "broadcast_direction",
+      "kind": "choice",
+      "description": "Collective configuration parameter: broadcast_direction."
+    },
+    {
+      "name": "elementwise_op",
+      "kind": "choice",
+      "description": "Collective configuration parameter: elementwise_op."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "broadcast tensor is compatible with output domain",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/thread/linear_combination_tensor_broadcast.hpp",
+        "line_start": 116,
+        "line_end": 116,
+        "symbol": "class LinearCombinationTensorBroadcast",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "epilogue",
+    "tensor-broadcast",
+    "fusion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

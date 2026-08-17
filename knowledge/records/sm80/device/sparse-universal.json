@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.device.sparse-universal",
+  "level": "device",
+  "name": "Structured-sparse universal GEMM",
+  "summary": "Expose universal GEMM modes for kernels that consume compressed operands plus structured-sparsity metadata.",
+  "primitives": [
+    "class GemmSparseUniversal"
+  ],
+  "strategy": {
+    "intent": "Turn a composed GEMM kernel into a safe, reusable host-callable operation.",
+    "mechanism": "Expose universal GEMM modes for kernels that consume compressed operands plus structured-sparsity metadata.",
+    "expected_benefit": "Provides uniform validation, resource management, launch, and workload-mode integration.",
+    "tradeoffs": [
+      "Device wrappers add host-side policy and workspace requirements that must remain consistent with the selected kernel."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "mode",
+      "kind": "choice",
+      "description": "Device integration parameter: mode."
+    },
+    {
+      "name": "metadata",
+      "kind": "choice",
+      "description": "Device integration parameter: metadata."
+    },
+    {
+      "name": "split_k_slices",
+      "kind": "integer",
+      "description": "Device integration parameter: split_k_slices."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "layout",
+      "expression": "compressed operand and metadata obey the kernel sparse format",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/device/gemm_sparse_universal.h",
+        "line_start": 125,
+        "line_end": 125,
+        "symbol": "class GemmSparseUniversal",
+        "evidence": "The referenced CUTLASS device API implements this integration method."
+      }
+    ]
+  },
+  "tags": [
+    "device-api",
+    "sparse-gemm",
+    "metadata"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

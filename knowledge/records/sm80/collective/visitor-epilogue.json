@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.collective.visitor-epilogue",
+  "level": "collective",
+  "name": "SM80 visitor epilogue",
+  "summary": "Invoke visitor callbacks over accumulator fragments to compose output transformations and side outputs.",
+  "primitives": [
+    "class EpilogueWithVisitor"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Invoke visitor callbacks over accumulator fragments to compose output transformations and side outputs.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "visitor",
+      "kind": "choice",
+      "description": "Collective configuration parameter: visitor."
+    },
+    {
+      "name": "output_iterator",
+      "kind": "choice",
+      "description": "Collective configuration parameter: output_iterator."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "visitor callbacks preserve fragment ordering",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/threadblock/epilogue_with_visitor.h",
+        "line_start": 167,
+        "line_end": 167,
+        "symbol": "class EpilogueWithVisitor",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "epilogue",
+    "visitor",
+    "fusion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

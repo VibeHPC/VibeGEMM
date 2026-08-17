@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.kernel.k-reduction",
+  "level": "kernel",
+  "name": "SM80 GEMM with K reduction kernel",
+  "summary": "Produce GEMM output together with an auxiliary reduction along the K-derived accumulation flow.",
+  "primitives": [
+    "GemmWithKReduction"
+  ],
+  "strategy": {
+    "intent": "Compose validated GEMM collectives with a grid/work scheduler into a complete CUDA kernel.",
+    "mechanism": "Produce GEMM output together with an auxiliary reduction along the K-derived accumulation flow.",
+    "expected_benefit": "Improves device utilization, overlap, locality, or workload coverage while preserving collective implementations.",
+    "tradeoffs": [
+      "Kernel schedules constrain tile shapes, resources, synchronization, and applicable problem regimes."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "reduction_op",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: reduction_op."
+    },
+    {
+      "name": "reduction_output",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: reduction_output."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "reduction output is combined exactly once",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/gemm_with_k_reduction.h",
+        "line_start": 63,
+        "line_end": 63,
+        "symbol": "GemmWithKReduction",
+        "evidence": "The referenced CUTLASS kernel or scheduler implements this composition strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "reduction",
+    "fusion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

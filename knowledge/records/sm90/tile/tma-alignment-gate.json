@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.tile.tma-alignment-gate",
+  "level": "tile",
+  "name": "Gate TMA tile construction on operand alignment",
+  "summary": "Use TMA tile movement only when A and B element types and declared alignments satisfy the Hopper TMA byte-alignment requirement.",
+  "primitives": [
+    "tma_alignment_bytes"
+  ],
+  "strategy": {
+    "intent": "Construct a legal and performance-relevant GEMM tile mapping for the target architecture.",
+    "mechanism": "Apply a compile-time alignment predicate before selecting a TMA GMMA collective.",
+    "expected_benefit": "Exposes data reuse and parallel Tensor Core work while respecting layout and resource limits.",
+    "tradeoffs": [
+      "Tile choices change shared-memory use, register pressure, occupancy, and available grid parallelism."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "alignment_a_elements",
+      "kind": "integer",
+      "description": "Tunable or derived tile property: alignment_a_elements."
+    },
+    {
+      "name": "alignment_b_elements",
+      "kind": "integer",
+      "description": "Tunable or derived tile property: alignment_b_elements."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "layout",
+      "expression": "is_aligned(A, B, tma_alignment_bytes)",
+      "rationale": "TMA descriptors require suitably aligned global tensor accesses."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/collective/builders/sm90_gmma_builder.inl",
+        "line_start": 237,
+        "line_end": 237,
+        "symbol": "tma_alignment_bytes",
+        "evidence": "The referenced CUTLASS builder/core expression implements this tile decision."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "tma",
+    "alignment",
+    "tile-builder"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted parameterized method; requires semantic review before promotion to curated."
+  ]
+}

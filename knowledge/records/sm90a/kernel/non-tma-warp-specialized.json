@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.kernel.non-tma-warp-specialized",
+  "level": "kernel",
+  "name": "SM90 non-TMA warp-specialized kernel",
+  "summary": "Compose a warp-specialized WGMMA kernel around non-TMA mainloop copy collectives for layouts that cannot use TMA.",
+  "primitives": [
+    "class GemmUniversal<"
+  ],
+  "strategy": {
+    "intent": "Compose validated GEMM collectives with a grid/work scheduler into a complete CUDA kernel.",
+    "mechanism": "Compose a warp-specialized WGMMA kernel around non-TMA mainloop copy collectives for layouts that cannot use TMA.",
+    "expected_benefit": "Improves device utilization, overlap, locality, or workload coverage while preserving collective implementations.",
+    "tradeoffs": [
+      "Kernel schedules constrain tile shapes, resources, synchronization, and applicable problem regimes."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "mainloop",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: mainloop."
+    },
+    {
+      "name": "epilogue",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: epilogue."
+    },
+    {
+      "name": "tile_scheduler",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: tile_scheduler."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "dependency",
+      "expression": "non-TMA collective matches kernel schedule",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    }
+  ],
+  "architectures": [
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/sm90_gemm_warpspecialized.hpp",
+        "line_start": 59,
+        "line_end": 59,
+        "symbol": "class GemmUniversal<",
+        "evidence": "The referenced CUTLASS kernel or scheduler implements this composition strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "non-tma",
+    "warp-specialized"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0.0",
+  "analysis_id": "variant-analysis:00d941d473fc48e7",
+  "variant_id": "gemm_bias_gelu",
+  "name": "GEMM + Bias + GELU",
+  "supported_architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "problem": {
+    "dimensions": [
+      "M",
+      "N",
+      "K"
+    ],
+    "representative_shapes": [
+      [
+        4096,
+        16384,
+        4096
+      ],
+      [
+        8192,
+        11008,
+        4096
+      ]
+    ]
+  },
+  "reference": {
+    "kind": "symbolic",
+    "description": "Y = GELU(X @ W + bias)"
+  },
+  "backbone_operations": [
+    "gemm"
+  ],
+  "variant_operations": [
+    {
+      "id": "bias_add",
+      "kind": "bias_add",
+      "inputs": [
+        "acc",
+        "bias"
+      ],
+      "outputs": [
+        "biased"
+      ],
+      "expression": "biased = acc + bias",
+      "topological_index": 1
+    },
+    {
+      "id": "gelu",
+      "kind": "gelu",
+      "inputs": [
+        "biased"
+      ],
+      "outputs": [
+        "Y"
+      ],
+      "expression": "Y = GELU(biased)",
+      "topological_index": 2
+    }
+  ],
+  "data_dependencies": [
+    {
+      "value": "Y",
+      "producer": "gelu",
+      "consumers": []
+    },
+    {
+      "value": "acc",
+      "producer": "gemm",
+      "consumers": [
+        "bias_add"
+      ]
+    },
+    {
+      "value": "biased",
+      "producer": "bias_add",
+      "consumers": [
+        "gelu"
+      ]
+    }
+  ],
+  "patch_groups": [
+    {
+      "group_id": "patch-group:e3192e41b75ca1e8",
+      "operation_ids": [
+        "bias_add",
+        "gelu"
+      ],
+      "computation": "biased = acc + bias -> Y = GELU(biased)",
+      "inputs": [
+        "acc",
+        "bias"
+      ],
+      "outputs": [
+        "Y"
+      ],
+      "tensor_requirements": [
+        {
+          "name": "acc",
+          "dtype": "fp32",
+          "layout": "tile"
+        },
+        {
+          "name": "bias",
+          "dtype": "fp16|bf16|fp32",
+          "layout": "vector_N"
+        },
+        {
+          "name": "Y",
+          "dtype": "fp16|bf16",
+          "layout": "row_major"
+        }
+      ],
+      "availability_stage": "epilogue",
+      "stage_rationale": "its operand becomes available after GEMM accumulation",
+      "requires_reduction": false,
+      "localization_status": "pending"
+    }
+  ],
+  "outputs": [
+    "Y"
+  ],
+  "status": "analyzed",
+  "next_stage": "patch_localization"
+}

@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.collective.visitor-tree-fusion",
+  "level": "collective",
+  "name": "SM90 composable visitor-tree epilogue fusion",
+  "summary": "Compose epilogue loads, compute nodes, reductions, auxiliary outputs, and stores as a callback visitor tree.",
+  "primitives": [
+    "Sm90TreeVisitor"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Compose epilogue loads, compute nodes, reductions, auxiliary outputs, and stores as a callback visitor tree.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "visitor_tree",
+      "kind": "choice",
+      "description": "Collective configuration parameter: visitor_tree."
+    },
+    {
+      "name": "compute_dtype",
+      "kind": "choice",
+      "description": "Collective configuration parameter: compute_dtype."
+    },
+    {
+      "name": "aux_outputs",
+      "kind": "choice",
+      "description": "Collective configuration parameter: aux_outputs."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "visitor dependency order is acyclic",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    },
+    {
+      "type": "dependency",
+      "expression": "callbacks honor TMA load/store synchronization entry points",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/fusion/sm90_visitor_tma_warpspecialized.hpp",
+        "line_start": 711,
+        "line_end": 711,
+        "symbol": "Sm90TreeVisitor",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "epilogue",
+    "fusion",
+    "visitor-tree"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

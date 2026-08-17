@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90a.collective.tma-producer-consumer-pipeline",
+  "level": "collective",
+  "name": "SM90 TMA producer-consumer pipeline",
+  "summary": "Coordinate specialized TMA producers and WGMMA consumers through full/empty stage barriers and circular pipeline states.",
+  "primitives": [
+    "PipelineTmaAsync"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Coordinate specialized TMA producers and WGMMA consumers through full/empty stage barriers and circular pipeline states.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "stages",
+      "kind": "integer",
+      "description": "Collective configuration parameter: stages."
+    },
+    {
+      "name": "producer_threads",
+      "kind": "integer",
+      "description": "Collective configuration parameter: producer_threads."
+    },
+    {
+      "name": "consumer_warpgroups",
+      "kind": "choice",
+      "description": "Collective configuration parameter: consumer_warpgroups."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "producer_acquire_commit precedes consumer_wait",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    },
+    {
+      "type": "semantic",
+      "expression": "consumer_release precedes stage reuse",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/collective/sm90_mma_tma_gmma_ss_warpspecialized.hpp",
+        "line_start": 111,
+        "line_end": 111,
+        "symbol": "PipelineTmaAsync",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "pipeline",
+    "producer-consumer",
+    "mbarrier"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

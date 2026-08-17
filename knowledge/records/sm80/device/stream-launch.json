@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.device.stream-launch",
+  "level": "device",
+  "name": "CUDA stream GEMM launch",
+  "summary": "Launch a prepared GEMM kernel asynchronously on a caller-selected CUDA stream, including dynamic shared-memory setup.",
+  "primitives": [
+    "run(Params& params"
+  ],
+  "strategy": {
+    "intent": "Turn a composed GEMM kernel into a safe, reusable host-callable operation.",
+    "mechanism": "Launch a prepared GEMM kernel asynchronously on a caller-selected CUDA stream, including dynamic shared-memory setup.",
+    "expected_benefit": "Provides uniform validation, resource management, launch, and workload-mode integration.",
+    "tradeoffs": [
+      "Device wrappers add host-side policy and workspace requirements that must remain consistent with the selected kernel."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "params",
+      "kind": "choice",
+      "description": "Device integration parameter: params."
+    },
+    {
+      "name": "stream",
+      "kind": "choice",
+      "description": "Device integration parameter: stream."
+    },
+    {
+      "name": "launch_with_pdl",
+      "kind": "choice",
+      "description": "Device integration parameter: launch_with_pdl."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "initialization completed before launch",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    },
+    {
+      "type": "resource",
+      "expression": "dynamic shared memory is supported by the device",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/device/gemm_universal_adapter.h",
+        "line_start": 375,
+        "line_end": 375,
+        "symbol": "run(Params& params",
+        "evidence": "The referenced CUTLASS device API implements this integration method."
+      }
+    ]
+  },
+  "tags": [
+    "device-api",
+    "cuda-stream",
+    "launch"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.tile.threadblock-warp-instruction-hierarchy",
+  "level": "tile",
+  "name": "Ampere threadblock, warp, and instruction tile hierarchy",
+  "summary": "Choose compatible threadblock, warp, and MMA instruction shapes so an SM80 Tensor Core GEMM tile decomposes exactly across warps and hardware MMA operations.",
+  "primitives": [
+    "ThreadblockShape",
+    "WarpShape",
+    "InstructionShape",
+    "DefaultMma"
+  ],
+  "strategy": {
+    "intent": "Build a reusable CTA tile from warp-level and instruction-level Tensor Core tiles.",
+    "mechanism": "Instantiate DefaultMma with explicit threadblock, warp, and instruction shapes and derive global/shared iterators and the multistage MMA policy.",
+    "expected_benefit": "Makes reuse, warp parallelism, instruction throughput, and resource use jointly tunable.",
+    "tradeoffs": [
+      "Large threadblock tiles increase shared-memory and register demand.",
+      "Small tiles can reduce reuse and Tensor Core utilization."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "threadblock_shape",
+      "kind": "shape",
+      "description": "CTA-level M, N, and K tile."
+    },
+    {
+      "name": "warp_shape",
+      "kind": "shape",
+      "description": "Per-warp M, N, and K tile."
+    },
+    {
+      "name": "instruction_shape",
+      "kind": "shape",
+      "description": "Tensor Core MMA instruction shape."
+    },
+    {
+      "name": "stages",
+      "kind": "integer",
+      "description": "Number of shared-memory mainloop stages."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "threadblock_shape % warp_shape == 0",
+      "rationale": "Warps must exactly partition the CTA tile."
+    },
+    {
+      "type": "shape",
+      "expression": "warp_shape % instruction_shape == 0",
+      "rationale": "MMA instructions must exactly partition each warp tile."
+    },
+    {
+      "type": "resource",
+      "expression": "stages * smem_per_tile <= available_smem",
+      "rationale": "Every pipeline stage stores A and B tiles in shared memory."
+    },
+    {
+      "type": "architecture",
+      "expression": "arch == sm80",
+      "rationale": "This record targets the Ampere TensorOp multistage specialization."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/threadblock/default_mma.h",
+        "line_start": 494,
+        "line_end": 565,
+        "symbol": "DefaultMma",
+        "evidence": "The TensorOp specialization accepts threadblock, warp, instruction, and stage parameters and constructs iterators plus a multistage MMA core."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "tiling",
+    "threadblock-tile",
+    "warp-tile",
+    "instruction-tile"
+  ],
+  "status": "curated"
+}

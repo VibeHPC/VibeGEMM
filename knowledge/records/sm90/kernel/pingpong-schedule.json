@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.kernel.pingpong-schedule",
+  "level": "kernel",
+  "name": "SM90 ping-pong warpgroup schedule",
+  "summary": "Alternate two consumer warpgroups across successive output tiles so one can overlap epilogue work with the other's mainloop.",
+  "primitives": [
+    "GemmUniversal<"
+  ],
+  "strategy": {
+    "intent": "Compose validated GEMM collectives with a grid/work scheduler into a complete CUDA kernel.",
+    "mechanism": "Alternate two consumer warpgroups across successive output tiles so one can overlap epilogue work with the other's mainloop.",
+    "expected_benefit": "Improves device utilization, overlap, locality, or workload coverage while preserving collective implementations.",
+    "tradeoffs": [
+      "Kernel schedules constrain tile shapes, resources, synchronization, and applicable problem regimes."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "consumer_warpgroups",
+      "kind": "integer",
+      "description": "Kernel configuration parameter: consumer_warpgroups."
+    },
+    {
+      "name": "turn_order",
+      "kind": "choice",
+      "description": "Kernel configuration parameter: turn_order."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "semantic",
+      "expression": "consumer barriers enforce ping-pong ownership",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    },
+    {
+      "type": "resource",
+      "expression": "two consumer accumulator sets fit registers",
+      "rationale": "Required for correctness or feasibility of the composed kernel schedule."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/kernel/sm90_gemm_tma_warpspecialized_pingpong.hpp",
+        "line_start": 64,
+        "line_end": 64,
+        "symbol": "GemmUniversal<",
+        "evidence": "The referenced CUTLASS kernel or scheduler implements this composition strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "ping-pong",
+    "warp-specialized",
+    "overlap"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

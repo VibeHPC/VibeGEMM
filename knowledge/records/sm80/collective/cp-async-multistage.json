@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.collective.cp-async-multistage",
+  "level": "collective",
+  "name": "SM80 cp.async multistage mainloop",
+  "summary": "Pipeline global-to-shared cp.async groups through multiple shared-memory stages while warp MMA consumes older stages.",
+  "primitives": [
+    "MainloopSm80CpAsyncUnpredicated"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Pipeline global-to-shared cp.async groups through multiple shared-memory stages while warp MMA consumes older stages.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "stages",
+      "kind": "integer",
+      "description": "Collective configuration parameter: stages."
+    },
+    {
+      "name": "cache_policy_a",
+      "kind": "choice",
+      "description": "Collective configuration parameter: cache_policy_a."
+    },
+    {
+      "name": "cache_policy_b",
+      "kind": "choice",
+      "description": "Collective configuration parameter: cache_policy_b."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "resource",
+      "expression": "stages >= 2",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    },
+    {
+      "type": "dependency",
+      "expression": "SM80 cp.async and MMA Atom methods are compatible",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/collective/sm80_mma_multistage.hpp",
+        "line_start": 65,
+        "line_end": 65,
+        "symbol": "MainloopSm80CpAsyncUnpredicated",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "cp-async",
+    "multistage",
+    "mainloop"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.collective.drelu-fusion",
+  "level": "collective",
+  "name": "Fused dReLU output",
+  "summary": "Mask the output linear combination using an auxiliary ReLU derivative input.",
+  "primitives": [
+    "class LinearCombinationDRelu"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Mask the output linear combination using an auxiliary ReLU derivative input.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "aux_input",
+      "kind": "choice",
+      "description": "Collective configuration parameter: aux_input."
+    },
+    {
+      "name": "threshold",
+      "kind": "choice",
+      "description": "Collective configuration parameter: threshold."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "auxiliary activation matches output domain",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm80",
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/thread/linear_combination_drelu.h",
+        "line_start": 67,
+        "line_end": 67,
+        "symbol": "class LinearCombinationDRelu",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "epilogue",
+    "drelu",
+    "activation",
+    "fusion"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

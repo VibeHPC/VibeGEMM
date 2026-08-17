@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0.0",
+  "integration_id": "patch-integration:a59df7316d9f58d8",
+  "architecture": "sm90",
+  "variant_id": "gemm_rmsnorm",
+  "mode": "placeholder_integration",
+  "real_llm_called": false,
+  "real_cuda_integration_performed": false,
+  "source": {
+    "localization_path": "variant_patch/patch_localization/results/sm90/gemm_rmsnorm.json",
+    "localization_sha256": "15dddef28edb992a1d3a51361908c6046795014eb0818ce451962fdf64dc127a",
+    "original_backbone_path": "backbone_optimization/progressive_refinement/artifacts/sm90-placeholder-refinement-v1/trajectory-42b2f00be027422e/step-0002-attempt-0.cu",
+    "original_backbone_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751"
+  },
+  "transaction": {
+    "atomic": true,
+    "partial_outputs_committed": false,
+    "steps": [
+      {
+        "index": 0,
+        "localization_id": "localization:d526f8441cdcf300",
+        "provider": "placeholder-integration-llm-v1",
+        "placeholder": true,
+        "prompt": {
+          "task": "generate_and_integrate_one_localized_cuda_patch",
+          "architecture": "sm90",
+          "variant_id": "gemm_rmsnorm",
+          "latest_candidate_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+          "original_backbone": {
+            "path": "backbone_optimization/progressive_refinement/artifacts/sm90-placeholder-refinement-v1/trajectory-42b2f00be027422e/step-0002-attempt-0.cu",
+            "sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+            "is_placeholder": true
+          },
+          "target_region": "epilogue",
+          "candidate_insertion_points": [
+            "epilogue_cross_thread_reduction_before_global_store",
+            "after_final_accumulator_before_output_conversion",
+            "before_global_store"
+          ],
+          "computation": "mean_sq = mean(acc^2, axis=N) -> inv_rms = rsqrt(mean_sq + epsilon) -> Y = acc * inv_rms",
+          "required_live_values": [
+            "acc"
+          ],
+          "produced_values": [
+            "Y"
+          ],
+          "tensor_requirements": [
+            {
+              "name": "acc",
+              "dtype": "fp32",
+              "layout": "tile"
+            },
+            {
+              "name": "Y",
+              "dtype": "fp16|bf16",
+              "layout": "row_major"
+            }
+          ],
+          "backbone_invariants": [
+            "preserve GEMM tensor-core instruction family",
+            "preserve tile shapes and thread/warp mapping",
+            "preserve mainloop pipeline and synchronization unless required by the patch",
+            "preserve existing shared-memory and register lifetimes",
+            "modify only the selected localized region"
+          ],
+          "requirements": [
+            "modify only the localized region",
+            "preserve all unrelated backbone source",
+            "return the complete integrated CUDA source",
+            "preserve variant numerical semantics"
+          ]
+        },
+        "input_source_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751",
+        "output_source_sha256": "a0862cbcbb86273cc564c6dc1ffec3ee4c4313aeb8d243300808ba9f6467ee12",
+        "status": "placeholder_transform_applied"
+      }
+    ],
+    "candidate_path": "variant_patch/patch_integration/artifacts/sm90/gemm_rmsnorm/kernel.variant.placeholder.cu",
+    "candidate_sha256": "a0862cbcbb86273cc564c6dc1ffec3ee4c4313aeb8d243300808ba9f6467ee12",
+    "status": "placeholder_candidate_committed"
+  },
+  "rollback": {
+    "action": "discard_candidate_and_restore_original_backbone",
+    "target_path": "backbone_optimization/progressive_refinement/artifacts/sm90-placeholder-refinement-v1/trajectory-42b2f00be027422e/step-0002-attempt-0.cu",
+    "target_sha256": "67af138cc52440f6e401e16b1764483805d9c9b80ada03cbbb2e002d03460751"
+  },
+  "ready_for_real_validation": false,
+  "status": "integration_placeholder_created",
+  "next_stage": "replace_placeholder_or_final_validation"
+}

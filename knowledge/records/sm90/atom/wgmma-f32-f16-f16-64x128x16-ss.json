@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90a.atom.wgmma-f32-f16-f16-64x128x16-ss",
+  "level": "atom",
+  "name": "Hopper WGMMA 64x128x16 FP16 with FP32 accumulation",
+  "summary": "Use a Hopper warpgroup MMA atom with shared-memory A and B operands to compute a 64x128x16 FP16 matrix product into FP32 accumulators.",
+  "primitives": [
+    "wgmma.mma_async",
+    "GMMA::MMA_64x128x16_F32F16F16_SS"
+  ],
+  "strategy": {
+    "intent": "Maximize Tensor Core throughput for FP16 GEMM on Hopper.",
+    "mechanism": "Issue an asynchronous warpgroup MMA whose A and B operands are described in shared memory and whose accumulator fragments remain in registers.",
+    "expected_benefit": "Maps the inner GEMM computation to Hopper Tensor Cores with warpgroup-level execution.",
+    "tradeoffs": [
+      "Requires SM90a architecture features and valid shared-memory descriptors.",
+      "Accumulator fragments increase register pressure."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "scale_a",
+      "kind": "choice",
+      "description": "Input scaling mode for operand A.",
+      "values": [
+        "One",
+        "Neg"
+      ]
+    },
+    {
+      "name": "scale_b",
+      "kind": "choice",
+      "description": "Input scaling mode for operand B.",
+      "values": [
+        "One",
+        "Neg"
+      ]
+    },
+    {
+      "name": "scale_d",
+      "kind": "choice",
+      "description": "Whether existing accumulator values participate in the operation.",
+      "values": [
+        0,
+        1
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "type": "architecture",
+      "expression": "arch == sm90a",
+      "rationale": "The wrapper guards the instruction with CUTE_ARCH_MMA_SM90A_ENABLED."
+    },
+    {
+      "type": "dtype",
+      "expression": "A == fp16 && B == fp16 && accumulator == fp32",
+      "rationale": "The selected atom encodes F32F16F16 operand types."
+    },
+    {
+      "type": "shape",
+      "expression": "mma_shape == (64, 128, 16)",
+      "rationale": "The hardware atom has a fixed instruction shape."
+    },
+    {
+      "type": "dependency",
+      "expression": "A_in_smem && B_in_smem",
+      "rationale": "The SS form consumes shared-memory descriptors for both operands."
+    }
+  ],
+  "architectures": [
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cute/arch/mma_sm90_gmma.hpp",
+        "line_start": 1632,
+        "line_end": 1699,
+        "symbol": "MMA_64x128x16_F32F16F16_SS",
+        "evidence": "The atom declares its register types and emits the SM90a WGMMA instruction for the fixed M, N, and K shape."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "wgmma",
+    "tensor-core",
+    "fp16",
+    "fp32-accumulation",
+    "shared-shared"
+  ],
+  "status": "curated"
+}

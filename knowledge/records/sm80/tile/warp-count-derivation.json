@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm80.tile.warp-count-derivation",
+  "level": "tile",
+  "name": "Derive SM80 warp count from CTA and warp shapes",
+  "summary": "Derive the three-dimensional warp arrangement by dividing the CTA tile shape by the per-warp tile shape.",
+  "primitives": [
+    "using WarpCount ="
+  ],
+  "strategy": {
+    "intent": "Construct a legal and performance-relevant GEMM tile mapping for the target architecture.",
+    "mechanism": "Compute WarpCount along M, N, and K at compile time and use its product to determine block threads.",
+    "expected_benefit": "Exposes data reuse and parallel Tensor Core work while respecting layout and resource limits.",
+    "tradeoffs": [
+      "Tile choices change shared-memory use, register pressure, occupancy, and available grid parallelism."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "warp_count_mnk",
+      "kind": "shape",
+      "description": "Tunable or derived tile property: warp_count_mnk."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "cta_m % warp_m == 0 && cta_n % warp_n == 0",
+      "rationale": "CUTLASS statically requires exact warp partitioning."
+    },
+    {
+      "type": "resource",
+      "expression": "threads == 32 * product(warp_count_mnk)",
+      "rationale": "Each TensorOp warp contributes 32 threads."
+    }
+  ],
+  "architectures": [
+    "sm80"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/threadblock/default_mma_core_sm80.h",
+        "line_start": 121,
+        "line_end": 121,
+        "symbol": "using WarpCount =",
+        "evidence": "The referenced CUTLASS builder/core expression implements this tile decision."
+      }
+    ]
+  },
+  "tags": [
+    "ampere",
+    "warp-count",
+    "threadblock-shape"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted parameterized method; requires semantic review before promotion to curated."
+  ]
+}

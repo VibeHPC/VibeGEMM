@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90.collective.auto-epilogue-schedule",
+  "level": "collective",
+  "name": "Automatic Hopper epilogue schedule",
+  "summary": "Let the epilogue builder select a compatible store schedule from output layout, alignment, tile, and fusion callbacks.",
+  "primitives": [
+    "struct EpilogueScheduleAuto"
+  ],
+  "strategy": {
+    "intent": "Coordinate GEMM data movement, Tensor Core computation, synchronization, and result processing across threads or warps.",
+    "mechanism": "Let the epilogue builder select a compatible store schedule from output layout, alignment, tile, and fusion callbacks.",
+    "expected_benefit": "Overlaps work and eliminates unnecessary global-memory traffic or kernel launches.",
+    "tradeoffs": [
+      "Collective strategies consume shared memory, registers, synchronization resources, and specialized warp roles."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "output_layout",
+      "kind": "choice",
+      "description": "Collective configuration parameter: output_layout."
+    },
+    {
+      "name": "alignment",
+      "kind": "choice",
+      "description": "Collective configuration parameter: alignment."
+    },
+    {
+      "name": "fusion_callbacks",
+      "kind": "choice",
+      "description": "Collective configuration parameter: fusion_callbacks."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "dependency",
+      "expression": "builder finds a legal epilogue schedule",
+      "rationale": "Required for correctness or resource feasibility of this collective strategy."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/epilogue/collective/collective_builder.hpp",
+        "line_start": 50,
+        "line_end": 50,
+        "symbol": "struct EpilogueScheduleAuto",
+        "evidence": "The referenced CUTLASS collective implements the described cooperation strategy."
+      }
+    ]
+  },
+  "tags": [
+    "hopper",
+    "epilogue",
+    "schedule",
+    "auto-selection"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}

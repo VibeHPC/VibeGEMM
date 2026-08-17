@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.sm90a.device.gemm-universal-adapter",
+  "level": "device",
+  "name": "Device-side GEMM universal adapter",
+  "summary": "Expose a kernel-independent host interface that validates arguments, allocates workspace, initializes kernel parameters, and launches a selected GEMM kernel on a CUDA stream.",
+  "primitives": [
+    "GemmUniversalAdapter",
+    "cudaLaunchKernel",
+    "cudaStream_t"
+  ],
+  "strategy": {
+    "intent": "Separate device launch orchestration from the internal GEMM kernel implementation.",
+    "mechanism": "Translate public arguments into kernel parameters, query workspace requirements, perform capability checks, and launch through a uniform adapter.",
+    "expected_benefit": "Makes generated kernels interchangeable behind a stable device-level lifecycle and launch contract.",
+    "tradeoffs": [
+      "Adapter checks and initialization add host-side complexity.",
+      "Workspace and hardware capability requirements must remain synchronized with the kernel type."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "arguments",
+      "kind": "choice",
+      "description": "Kernel-specific problem, tensor, stride, and scheduler arguments."
+    },
+    {
+      "name": "workspace",
+      "kind": "integer",
+      "description": "Bytes of temporary device storage required by the selected kernel."
+    },
+    {
+      "name": "stream",
+      "kind": "choice",
+      "description": "CUDA stream used for initialization and kernel execution."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "dependency",
+      "expression": "Kernel exposes Arguments, Params, can_implement, and workspace_size",
+      "rationale": "The adapter delegates validation and parameter construction to a uniform kernel contract."
+    },
+    {
+      "type": "resource",
+      "expression": "provided_workspace_bytes >= required_workspace_bytes",
+      "rationale": "Some scheduling modes require temporary device storage."
+    },
+    {
+      "type": "semantic",
+      "expression": "initialize succeeds before run",
+      "rationale": "The adapter must construct valid kernel parameters before launch."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/device/gemm_universal_adapter.h",
+        "line_start": 123,
+        "line_end": 620,
+        "symbol": "GemmUniversalAdapter",
+        "evidence": "The adapter defines the argument, workspace, initialization, update, and stream-based run lifecycle around a kernel type."
+      }
+    ]
+  },
+  "tags": [
+    "device-api",
+    "launch",
+    "workspace",
+    "adapter",
+    "cuda-stream"
+  ],
+  "status": "curated"
+}

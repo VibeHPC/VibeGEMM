@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cutlass.device.dynamic-cluster-launch",
+  "level": "device",
+  "name": "Dynamic thread-block cluster launch",
+  "summary": "Launch a Hopper GEMM using runtime-selected cluster dimensions carried by hardware information.",
+  "primitives": [
+    "Launching dynamic cluster kernel"
+  ],
+  "strategy": {
+    "intent": "Turn a composed GEMM kernel into a safe, reusable host-callable operation.",
+    "mechanism": "Launch a Hopper GEMM using runtime-selected cluster dimensions carried by hardware information.",
+    "expected_benefit": "Provides uniform validation, resource management, launch, and workload-mode integration.",
+    "tradeoffs": [
+      "Device wrappers add host-side policy and workspace requirements that must remain consistent with the selected kernel."
+    ]
+  },
+  "parameters": [
+    {
+      "name": "cluster_shape",
+      "kind": "choice",
+      "description": "Device integration parameter: cluster_shape."
+    },
+    {
+      "name": "grid",
+      "kind": "choice",
+      "description": "Device integration parameter: grid."
+    },
+    {
+      "name": "stream",
+      "kind": "choice",
+      "description": "Device integration parameter: stream."
+    }
+  ],
+  "constraints": [
+    {
+      "type": "shape",
+      "expression": "grid is divisible by cluster shape",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    },
+    {
+      "type": "resource",
+      "expression": "cluster shape is supported by the device",
+      "rationale": "Required for a valid and correctly ordered device execution."
+    }
+  ],
+  "architectures": [
+    "sm90",
+    "sm90a"
+  ],
+  "source": {
+    "library": "CUTLASS",
+    "version": "4.7.0",
+    "license": "BSD-3-Clause",
+    "references": [
+      {
+        "path": "cutlass-main/include/cutlass/gemm/device/gemm_universal_adapter.h",
+        "line_start": 478,
+        "line_end": 478,
+        "symbol": "Launching dynamic cluster kernel",
+        "evidence": "The referenced CUTLASS device API implements this integration method."
+      }
+    ]
+  },
+  "tags": [
+    "device-api",
+    "cluster",
+    "dynamic-launch",
+    "hopper"
+  ],
+  "status": "candidate",
+  "notes": [
+    "Rule-extracted method; requires semantic review before promotion to curated."
+  ]
+}
