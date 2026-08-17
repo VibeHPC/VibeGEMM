@@ -1,0 +1,71 @@
+=== Device: NVIDIA H100 NVL (SM: 90) ===
+
+=== GEMM  M=8192  N=8192  K=8192 ===
+
+[cuBLAS]
+  avg latency = 2.436 ms   451.30 TFLOPS
+
+[VibeGEMM H100 8192^2 v0]
+  avg latency = 5.656 ms   194.40 TFLOPS
+
+[VibeGEMM H100 8192^2 v1]
+  avg latency = 5.840 ms   188.26 TFLOPS
+
+[VibeGEMM H100 8192^2 v2]
+  avg latency = 5.863 ms   187.55 TFLOPS
+
+[VibeGEMM H100 8192^2 v3]
+  avg latency = 5.126 ms   214.50 TFLOPS
+
+[VibeGEMM H100 8192^2 v4]
+  avg latency = 3.836 ms   286.60 TFLOPS
+
+[VibeGEMM H100 8192^2 v5]
+  avg latency = 3.975 ms   276.63 TFLOPS
+
+[VibeGEMM H100 8192^2 v6]
+  avg latency = 3.769 ms   291.72 TFLOPS
+
+[VibeGEMM H100 8192^2 v7]
+  avg latency = 3.906 ms   281.49 TFLOPS
+
+[VibeGEMM H100 8192^2 v8]
+  avg latency = 3.045 ms   361.04 TFLOPS
+
+[VibeGEMM H100 8192^2 v9]
+  avg latency = 3.001 ms   366.43 TFLOPS
+
+[VibeGEMM H100 8192^2 v10]
+  avg latency = 3.051 ms   360.35 TFLOPS
+
+[VibeGEMM H100 8192^2 v11]
+  avg latency = 2.816 ms   390.45 TFLOPS
+
+[VibeGEMM H100 8192^2 v12]
+  avg latency = 2.835 ms   387.80 TFLOPS
+
+[VibeGEMM H100 8192^2 v13]
+  avg latency = 2.562 ms   429.10 TFLOPS
+
+[VibeGEMM H100 8192^2 v14]
+  avg latency = 2.540 ms   432.88 TFLOPS
+
+[VibeGEMM H100 8192^2 v15]
+  avg latency = 2.630 ms   418.09 TFLOPS
+
+[VibeGEMM H100 8192^2 v16]
+  avg latency = 2.647 ms   415.34 TFLOPS
+
+[VibeGEMM H100 8192^2 v17]
+  avg latency = 2.423 ms   453.73 TFLOPS
+
+[VibeGEMM H100 8192^2 v18]
+  avg latency = 2.386 ms   460.83 TFLOPS
+
+[VibeGEMM H100 8192^2 v19]
+  avg latency = 2.444 ms   449.85 TFLOPS
+
+[VibeGEMM H100 8192^2 v20]
+  avg latency = 2.404 ms   457.32 TFLOPS
+
+Done.

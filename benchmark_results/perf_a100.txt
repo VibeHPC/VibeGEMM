@@ -1,0 +1,42 @@
+=== GEMM  M=8192  N=8192  K=8192 ===
+
+[cuBLAS]
+  avg latency = 4.851 ms   226.66 TFLOPS
+
+[VibeGEMM A100 8192^2 v0]
+  avg latency = 321.944 ms   3.42 TFLOPS
+
+[VibeGEMM A100 8192^2 v1]
+  avg latency = 49.289 ms   22.31 TFLOPS
+
+[VibeGEMM A100 8192^2 v2]
+  avg latency = 49.290 ms   22.31 TFLOPS
+
+[VibeGEMM A100 8192^2 v3]
+  avg latency = 33.933 ms   32.40 TFLOPS
+
+[VibeGEMM A100 8192^2 v4]
+  avg latency = 12.733 ms   86.35 TFLOPS
+
+[VibeGEMM A100 8192^2 v5]
+  avg latency = 8.773 ms   125.33 TFLOPS
+
+[VibeGEMM A100 8192^2 v6]
+  avg latency = 7.779 ms   141.34 TFLOPS
+
+[VibeGEMM A100 8192^2 v7]
+  avg latency = 5.553 ms   198.01 TFLOPS
+
+[VibeGEMM A100 8192^2 v8]
+  avg latency = 5.337 ms   206.01 TFLOPS
+
+[VibeGEMM A100 8192^2 v9]
+  avg latency = 5.192 ms   211.77 TFLOPS
+
+[VibeGEMM A100 8192^2 v10]
+  avg latency = 5.247 ms   209.55 TFLOPS
+
+[VibeGEMM A100 8192^2 v11]
+  avg latency = 4.985 ms   220.55 TFLOPS
+
+Done.
