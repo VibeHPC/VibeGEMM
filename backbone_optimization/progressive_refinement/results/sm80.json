@@ -1,0 +1,486 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "sm80-placeholder-refinement-v1",
+  "architecture": "sm80",
+  "mode": "placeholder_simulation",
+  "real_llm_called": false,
+  "real_cuda_validation_performed": false,
+  "source": {
+    "trajectory_path": "backbone_optimization/trajectory_construction/results/sm80.json",
+    "trajectory_sha256": "27b0db7eb1ffd00c4560a65b4138b9f2e1d29aaa9d647a96c336885278d33f5b"
+  },
+  "configuration": {
+    "trajectory_limit": 3,
+    "step_limit": 3,
+    "max_repairs": 5,
+    "slowdown_threshold": 0.3,
+    "initial_runtime_us": 100.0,
+    "scenario": "exercise-recovery",
+    "start_from_global_best": false
+  },
+  "provider": "placeholder-llm-v1",
+  "validator": "placeholder-validator-v1",
+  "initial_valid_state": {
+    "kernel_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/initial.cu",
+    "kernel_sha256": "294e1343d6bad72371844f0d51a0cf34783d7eb2108c44de9e8c156b77b43157",
+    "runtime_us": 100.0
+  },
+  "trajectory_traces": [
+    {
+      "trajectory_id": "trajectory:4cc69f56b5239d6a",
+      "rank": 1,
+      "start_state": {
+        "kernel_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/initial.cu",
+        "kernel_sha256": "294e1343d6bad72371844f0d51a0cf34783d7eb2108c44de9e8c156b77b43157",
+        "runtime_us": 100.0,
+        "trajectory_id": null,
+        "step_index": null
+      },
+      "events": [
+        {
+          "step_index": 0,
+          "level": "atom",
+          "record_id": "cutlass.sm80.atom.cp-async-always",
+          "record_source": "knowledge/records/sm80/atom/cp-async-always.json",
+          "input_valid_state": {
+            "kernel_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/initial.cu",
+            "kernel_sha256": "294e1343d6bad72371844f0d51a0cf34783d7eb2108c44de9e8c156b77b43157",
+            "runtime_us": 100.0,
+            "trajectory_id": null,
+            "step_index": null
+          },
+          "attempts": [
+            {
+              "repair_attempt": 0,
+              "candidate_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-4cc69f56b5239d6a/step-0000-attempt-0.cu",
+              "candidate_sha256": "c6508ddd1d78fe5590dc13ceffec09ffabcfd1207177881c2cc12411bcc3c76e",
+              "generation_placeholder": true,
+              "validation": {
+                "validator": "placeholder-validator-v1",
+                "placeholder": true,
+                "scenario": "exercise-recovery",
+                "compilation_execution": {
+                  "status": "simulated_fail",
+                  "diagnostics": "placeholder compile failure"
+                },
+                "numerical_correctness": {
+                  "status": "not_run",
+                  "diagnostics": null
+                },
+                "performance": {
+                  "status": "not_run",
+                  "runtime_us": null,
+                  "relative_to_previous": null
+                }
+              },
+              "decision": "repair",
+              "reason": "compilation_or_execution_failure"
+            },
+            {
+              "repair_attempt": 1,
+              "candidate_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-4cc69f56b5239d6a/step-0000-attempt-1.cu",
+              "candidate_sha256": "a1a59269520c57d95f9cbdb2426ea33f128943e350f6775b642bf8e0bfe178de",
+              "generation_placeholder": true,
+              "validation": {
+                "validator": "placeholder-validator-v1",
+                "placeholder": true,
+                "scenario": "exercise-recovery",
+                "compilation_execution": {
+                  "status": "simulated_pass",
+                  "diagnostics": null
+                },
+                "numerical_correctness": {
+                  "status": "simulated_pass",
+                  "diagnostics": null
+                },
+                "performance": {
+                  "status": "simulated_profile",
+                  "runtime_us": 99.0,
+                  "relative_to_previous": 0.99
+                }
+              },
+              "decision": "accept",
+              "reason": "validated_within_slowdown_threshold"
+            }
+          ],
+          "status": "accepted"
+        },
+        {
+          "step_index": 1,
+          "level": "atom",
+          "record_id": "cutlass.sm80.atom.cp-async-commit-group",
+          "record_source": "knowledge/records/sm80/atom/cp-async-commit-group.json",
+          "input_valid_state": {
+            "kernel_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-4cc69f56b5239d6a/step-0000-attempt-1.cu",
+            "kernel_sha256": "a1a59269520c57d95f9cbdb2426ea33f128943e350f6775b642bf8e0bfe178de",
+            "runtime_us": 99.0,
+            "trajectory_id": "trajectory:4cc69f56b5239d6a",
+            "step_index": 0
+          },
+          "attempts": [
+            {
+              "repair_attempt": 0,
+              "candidate_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-4cc69f56b5239d6a/step-0001-attempt-0.cu",
+              "candidate_sha256": "fa1610e9ffb608b8c434ee1e525299f480ed79fa500ecd1937c56567c810db89",
+              "generation_placeholder": true,
+              "validation": {
+                "validator": "placeholder-validator-v1",
+                "placeholder": true,
+                "scenario": "exercise-recovery",
+                "compilation_execution": {
+                  "status": "simulated_pass",
+                  "diagnostics": null
+                },
+                "numerical_correctness": {
+                  "status": "simulated_pass",
+                  "diagnostics": null
+                },
+                "performance": {
+                  "status": "simulated_profile",
+                  "runtime_us": 98.01,
+                  "relative_to_previous": 0.99
+                }
+              },
+              "decision": "accept",
+              "reason": "validated_within_slowdown_threshold"
+            }
+          ],
+          "status": "accepted"
+        },
+        {
+          "step_index": 2,
+          "level": "atom",
+          "record_id": "cutlass.sm80.atom.cp-async-global",
+          "record_source": "knowledge/records/sm80/atom/cp-async-global.json",
+          "input_valid_state": {
+            "kernel_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-4cc69f56b5239d6a/step-0001-attempt-0.cu",
+            "kernel_sha256": "fa1610e9ffb608b8c434ee1e525299f480ed79fa500ecd1937c56567c810db89",
+            "runtime_us": 98.01,
+            "trajectory_id": "trajectory:4cc69f56b5239d6a",
+            "step_index": 1
+          },
+          "attempts": [
+            {
+              "repair_attempt": 0,
+              "candidate_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-4cc69f56b5239d6a/step-0002-attempt-0.cu",
+              "candidate_sha256": "a1a44f7ecafa0d154e9c98c4dfbda99e2e2c05d58703fba8761258dee89796a4",
+              "generation_placeholder": true,
+              "validation": {
+                "validator": "placeholder-validator-v1",
+                "placeholder": true,
+                "scenario": "exercise-recovery",
+                "compilation_execution": {
+                  "status": "simulated_pass",
+                  "diagnostics": null
+                },
+                "numerical_correctness": {
+                  "status": "simulated_pass",
+                  "diagnostics": null
+                },
+                "performance": {
+                  "status": "simulated_profile",
+                  "runtime_us": 97.0299,
+                  "relative_to_previous": 0.99
+                }
+              },
+              "decision": "accept",
+              "reason": "validated_within_slowdown_threshold"
+            }
+          ],
+          "status": "accepted"
+        }
+      ],
+      "status": "completed",
+      "terminal_valid_state": {
+        "kernel_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-4cc69f56b5239d6a/step-0002-attempt-0.cu",
+        "kernel_sha256": "a1a44f7ecafa0d154e9c98c4dfbda99e2e2c05d58703fba8761258dee89796a4",
+        "runtime_us": 97.0299,
+        "trajectory_id": "trajectory:4cc69f56b5239d6a",
+        "step_index": 2
+      }
+    },
+    {
+      "trajectory_id": "trajectory:718e3e51be5c7ce7",
+      "rank": 2,
+      "start_state": {
+        "kernel_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/initial.cu",
+        "kernel_sha256": "294e1343d6bad72371844f0d51a0cf34783d7eb2108c44de9e8c156b77b43157",
+        "runtime_us": 100.0,
+        "trajectory_id": null,
+        "step_index": null
+      },
+      "events": [
+        {
+          "step_index": 0,
+          "level": "atom",
+          "record_id": "cutlass.sm80.atom.cp-async-always",
+          "record_source": "knowledge/records/sm80/atom/cp-async-always.json",
+          "input_valid_state": {
+            "kernel_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/initial.cu",
+            "kernel_sha256": "294e1343d6bad72371844f0d51a0cf34783d7eb2108c44de9e8c156b77b43157",
+            "runtime_us": 100.0,
+            "trajectory_id": null,
+            "step_index": null
+          },
+          "attempts": [
+            {
+              "repair_attempt": 0,
+              "candidate_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-718e3e51be5c7ce7/step-0000-attempt-0.cu",
+              "candidate_sha256": "c6508ddd1d78fe5590dc13ceffec09ffabcfd1207177881c2cc12411bcc3c76e",
+              "generation_placeholder": true,
+              "validation": {
+                "validator": "placeholder-validator-v1",
+                "placeholder": true,
+                "scenario": "exercise-recovery",
+                "compilation_execution": {
+                  "status": "simulated_pass",
+                  "diagnostics": null
+                },
+                "numerical_correctness": {
+                  "status": "simulated_fail",
+                  "diagnostics": "placeholder tile mismatch"
+                },
+                "performance": {
+                  "status": "not_run",
+                  "runtime_us": null,
+                  "relative_to_previous": null
+                }
+              },
+              "decision": "repair",
+              "reason": "numerical_mismatch"
+            },
+            {
+              "repair_attempt": 1,
+              "candidate_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-718e3e51be5c7ce7/step-0000-attempt-1.cu",
+              "candidate_sha256": "a1a59269520c57d95f9cbdb2426ea33f128943e350f6775b642bf8e0bfe178de",
+              "generation_placeholder": true,
+              "validation": {
+                "validator": "placeholder-validator-v1",
+                "placeholder": true,
+                "scenario": "exercise-recovery",
+                "compilation_execution": {
+                  "status": "simulated_pass",
+                  "diagnostics": null
+                },
+                "numerical_correctness": {
+                  "status": "simulated_fail",
+                  "diagnostics": "placeholder tile mismatch"
+                },
+                "performance": {
+                  "status": "not_run",
+                  "runtime_us": null,
+                  "relative_to_previous": null
+                }
+              },
+              "decision": "repair",
+              "reason": "numerical_mismatch"
+            },
+            {
+              "repair_attempt": 2,
+              "candidate_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-718e3e51be5c7ce7/step-0000-attempt-2.cu",
+              "candidate_sha256": "7b9c1c77c8c6cec08cd29d8e7914bab6e518a1cb4c8d2bbb13b936fe3140c5de",
+              "generation_placeholder": true,
+              "validation": {
+                "validator": "placeholder-validator-v1",
+                "placeholder": true,
+                "scenario": "exercise-recovery",
+                "compilation_execution": {
+                  "status": "simulated_pass",
+                  "diagnostics": null
+                },
+                "numerical_correctness": {
+                  "status": "simulated_fail",
+                  "diagnostics": "placeholder tile mismatch"
+                },
+                "performance": {
+                  "status": "not_run",
+                  "runtime_us": null,
+                  "relative_to_previous": null
+                }
+              },
+              "decision": "repair",
+              "reason": "numerical_mismatch"
+            },
+            {
+              "repair_attempt": 3,
+              "candidate_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-718e3e51be5c7ce7/step-0000-attempt-3.cu",
+              "candidate_sha256": "d49dbd63bf35ba3640dd47abe9d03eeefb14d9d324af510bf0705812ef6c2b4a",
+              "generation_placeholder": true,
+              "validation": {
+                "validator": "placeholder-validator-v1",
+                "placeholder": true,
+                "scenario": "exercise-recovery",
+                "compilation_execution": {
+                  "status": "simulated_pass",
+                  "diagnostics": null
+                },
+                "numerical_correctness": {
+                  "status": "simulated_fail",
+                  "diagnostics": "placeholder tile mismatch"
+                },
+                "performance": {
+                  "status": "not_run",
+                  "runtime_us": null,
+                  "relative_to_previous": null
+                }
+              },
+              "decision": "repair",
+              "reason": "numerical_mismatch"
+            },
+            {
+              "repair_attempt": 4,
+              "candidate_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-718e3e51be5c7ce7/step-0000-attempt-4.cu",
+              "candidate_sha256": "d21589edeb85504f9c0087dacf90315debcf9349df4220c0364176651c8d025d",
+              "generation_placeholder": true,
+              "validation": {
+                "validator": "placeholder-validator-v1",
+                "placeholder": true,
+                "scenario": "exercise-recovery",
+                "compilation_execution": {
+                  "status": "simulated_pass",
+                  "diagnostics": null
+                },
+                "numerical_correctness": {
+                  "status": "simulated_fail",
+                  "diagnostics": "placeholder tile mismatch"
+                },
+                "performance": {
+                  "status": "not_run",
+                  "runtime_us": null,
+                  "relative_to_previous": null
+                }
+              },
+              "decision": "repair",
+              "reason": "numerical_mismatch"
+            },
+            {
+              "repair_attempt": 5,
+              "candidate_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-718e3e51be5c7ce7/step-0000-attempt-5.cu",
+              "candidate_sha256": "7511a08cfcf0cd26fc53815959fa8b9ed123e9cfa5f99cec3ca9683688c62eb3",
+              "generation_placeholder": true,
+              "validation": {
+                "validator": "placeholder-validator-v1",
+                "placeholder": true,
+                "scenario": "exercise-recovery",
+                "compilation_execution": {
+                  "status": "simulated_pass",
+                  "diagnostics": null
+                },
+                "numerical_correctness": {
+                  "status": "simulated_fail",
+                  "diagnostics": "placeholder tile mismatch"
+                },
+                "performance": {
+                  "status": "not_run",
+                  "runtime_us": null,
+                  "relative_to_previous": null
+                }
+              },
+              "decision": "repair",
+              "reason": "numerical_mismatch"
+            }
+          ],
+          "status": "rejected_and_rolled_back"
+        }
+      ],
+      "status": "terminated_and_rolled_back",
+      "rollback_state": {
+        "kernel_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/initial.cu",
+        "kernel_sha256": "294e1343d6bad72371844f0d51a0cf34783d7eb2108c44de9e8c156b77b43157",
+        "runtime_us": 100.0,
+        "trajectory_id": null,
+        "step_index": null
+      },
+      "terminal_valid_state": {
+        "kernel_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/initial.cu",
+        "kernel_sha256": "294e1343d6bad72371844f0d51a0cf34783d7eb2108c44de9e8c156b77b43157",
+        "runtime_us": 100.0,
+        "trajectory_id": null,
+        "step_index": null
+      }
+    },
+    {
+      "trajectory_id": "trajectory:bb607fb935a2f2b3",
+      "rank": 3,
+      "start_state": {
+        "kernel_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/initial.cu",
+        "kernel_sha256": "294e1343d6bad72371844f0d51a0cf34783d7eb2108c44de9e8c156b77b43157",
+        "runtime_us": 100.0,
+        "trajectory_id": null,
+        "step_index": null
+      },
+      "events": [
+        {
+          "step_index": 0,
+          "level": "atom",
+          "record_id": "cutlass.sm80.atom.cp-async-always",
+          "record_source": "knowledge/records/sm80/atom/cp-async-always.json",
+          "input_valid_state": {
+            "kernel_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/initial.cu",
+            "kernel_sha256": "294e1343d6bad72371844f0d51a0cf34783d7eb2108c44de9e8c156b77b43157",
+            "runtime_us": 100.0,
+            "trajectory_id": null,
+            "step_index": null
+          },
+          "attempts": [
+            {
+              "repair_attempt": 0,
+              "candidate_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-bb607fb935a2f2b3/step-0000-attempt-0.cu",
+              "candidate_sha256": "c6508ddd1d78fe5590dc13ceffec09ffabcfd1207177881c2cc12411bcc3c76e",
+              "generation_placeholder": true,
+              "validation": {
+                "validator": "placeholder-validator-v1",
+                "placeholder": true,
+                "scenario": "exercise-recovery",
+                "compilation_execution": {
+                  "status": "simulated_pass",
+                  "diagnostics": null
+                },
+                "numerical_correctness": {
+                  "status": "simulated_pass",
+                  "diagnostics": null
+                },
+                "performance": {
+                  "status": "simulated_profile",
+                  "runtime_us": 135.0,
+                  "relative_to_previous": 1.35
+                }
+              },
+              "decision": "terminate",
+              "reason": "severe_performance_regression"
+            }
+          ],
+          "status": "rejected_and_rolled_back"
+        }
+      ],
+      "status": "terminated_and_rolled_back",
+      "rollback_state": {
+        "kernel_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/initial.cu",
+        "kernel_sha256": "294e1343d6bad72371844f0d51a0cf34783d7eb2108c44de9e8c156b77b43157",
+        "runtime_us": 100.0,
+        "trajectory_id": null,
+        "step_index": null
+      },
+      "terminal_valid_state": {
+        "kernel_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/initial.cu",
+        "kernel_sha256": "294e1343d6bad72371844f0d51a0cf34783d7eb2108c44de9e8c156b77b43157",
+        "runtime_us": 100.0,
+        "trajectory_id": null,
+        "step_index": null
+      }
+    }
+  ],
+  "best_validated_backbone": {
+    "kernel_path": "backbone_optimization/progressive_refinement/artifacts/sm80-placeholder-refinement-v1/trajectory-4cc69f56b5239d6a/step-0002-attempt-0.cu",
+    "kernel_sha256": "a1a44f7ecafa0d154e9c98c4dfbda99e2e2c05d58703fba8761258dee89796a4",
+    "runtime_us": 97.0299,
+    "trajectory_id": "trajectory:4cc69f56b5239d6a",
+    "step_index": 2
+  },
+  "statistics": {
+    "trajectory_count": 3,
+    "accepted_steps": 3,
+    "rolled_back_trajectories": 2,
+    "placeholder_attempts": 11
+  }
+}
